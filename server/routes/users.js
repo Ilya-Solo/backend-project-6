@@ -2,6 +2,10 @@
 
 import i18next from 'i18next';
 
+const isAuthoriedUser = (sessionUser, user) => {
+  return (sessionUser.id === user.id) && (sessionUser.passwordDigest === user.passwordDigest);
+}
+
 export default (app) => {
   app
     .get('/users', { name: 'users' }, async (req, reply) => {
@@ -18,9 +22,18 @@ export default (app) => {
       const userId = req.params.id;
       try {
         const user = await app.objection.models.user.query().findById(userId);
-        reply.render('users/edit', { user });
+        const sessionUserData = req.user;
+        if (!req.isAuthenticated()) {
+          req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
+          reply.redirect(app.reverse('users'));
+        } else if (!isAuthoriedUser(sessionUserData, user)) {
+          req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
+          reply.redirect(app.reverse('users'));
+        } else {
+          reply.render('users/edit', { user });
+        }
       } catch ({data}) {
-        req.flash('error', i18next.t('flash.users.edit.error'));
+        req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
         reply.redirect(app.reverse('users'));
       }
       return reply;
@@ -42,22 +55,24 @@ export default (app) => {
       return reply;
     })
     .patch('/users/:id', async (req, reply) => {
-
       const userId = req.params.id;
       try {
-        const user = await app.objection.models.user.query().findById(userId);
-
-        if (!user) {
-          req.flash('error', i18next.t('flash.users.edit.error.auth'));
-          reply.redirect(app.reverse('users'));
-          return reply;
-        }
-
-        await app.objection.models.user.fromJson(req.body.data); // form data validation
-        user.$set(req.body.data);
-        await user.$query().patch();
-        req.flash('info', i18next.t('flash.users.edit.success'));
-        reply.redirect(app.reverse('users'));
+        // if (req.isAuthenticated()) {
+          const user = await app.objection.models.user.query().findById(userId);
+          const sessionUserData = req.user;
+          if (!req.isAuthenticated()) {
+            req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
+            reply.redirect(app.reverse('users'));
+          } else if (!isAuthoriedUser(sessionUserData, user)) {
+            req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
+            reply.redirect(app.reverse('users'));
+          } else {
+            await app.objection.models.user.fromJson(req.body.data);
+            user.$set(req.body.data);
+            await user.$query().patch();
+            req.flash('info', i18next.t('flash.users.edit.success'));
+            reply.redirect(app.reverse('users'));
+          }
       } catch ({data}) {
         req.flash('error', i18next.t('flash.users.edit.error.edit'));
         reply.render('users/edit', { user: { ...req.body.data, id: userId}, errors: data });
@@ -68,12 +83,24 @@ export default (app) => {
     .delete('/users/:id', async (req, reply) => {
       try {
         const userId = req.params.id;
-        const deletedUser = await app.objection.models.user.query().deleteById(userId);
-        if (deletedUser !== 1) {
-          throw Error;
+        const user = await app.objection.models.user.query().findById(userId);
+        const sessionUserData = req.user;
+        if (!req.isAuthenticated()) {
+          req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
+          reply.redirect(app.reverse('users'));
+        } else if (!isAuthoriedUser(sessionUserData, user)) {
+          req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
+          reply.redirect(app.reverse('users'));
+        } else {
+          const deletedUser = await app.objection.models.user.query().deleteById(userId);
+
+          if (deletedUser !== 1) {
+            throw Error;
+          }
+          req.logOut();
+          req.flash('info', i18next.t('flash.users.delete.success'));
+          reply.redirect(app.reverse('users'));
         }
-        req.flash('info', i18next.t('flash.users.delete.success'));
-        reply.redirect(app.reverse('users'));
       } catch ({data}) {
         req.flash('error', i18next.t('flash.users.delete.error'));
         reply.redirect(app.reverse('users'));
