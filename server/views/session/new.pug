@@ -4,13 +4,13 @@ block header
   = t('views.session.new.signIn')
 
 block content
-  div.row.justify-content-center
-    div.col-12.col-md-8
-      div.card.shadow-sm
-        div.card-body.row.p-5
-          div.col-12.col-md-6.d-flex.align-items-center.justify-content-center
+  .row.justify-content-center
+    .col-12.col-md-8
+      .card.shadow-sm
+        .card-body.row.p-5
+          .col-12.col-md-6.d-flex.align-items-center.justify-content-center
             img.rounded-circle(src=assetPath("avatar.jpg"))
-          div.col-12.col-md-6.mt-3.mt-mb-0
+          .col-12.col-md-6.mt-3.mt-mb-0
             +formFor()(action=route('session') method='post')
               +input(signInForm, 'email', errors)(type="text")
               +input(signInForm, 'password')(type="password")

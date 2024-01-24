@@ -29,12 +29,12 @@ html(lang="ru")
 
       each messages, type in reply.flash() || []
         each message in messages
-          div.alert(class=`alert-${getAlertClass(type)}`)= message
+          .alert(class=`alert-${getAlertClass(type)}`)= message
 
       h1.display-4.fw-bold.mt-4
         block header
       block content
 
     footer.bg-dark.text-light
-      div.container.py-3
+      .container.py-3
         p.lead.mb-0 &copy; Hexlet Ltd, 2021
