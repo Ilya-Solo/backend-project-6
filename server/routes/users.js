@@ -14,7 +14,7 @@ export default (app) => {
       reply.render('users/new', { user });
       return reply;
     })
-    .get('/users/:id/edit', { name: 'editUser' }, async (req, reply) => {
+    .get('/users/:id/edit', async (req, reply) => {
       const userId = req.params.id;
       try {
         const user = await app.objection.models.user.query().findById(userId);
@@ -42,24 +42,25 @@ export default (app) => {
       return reply;
     })
     .patch('/users/:id', async (req, reply) => {
-      const user = new app.objection.models.user();
-      user.$set(req.body.data);
 
+      const userId = req.params.id;
       try {
-        const userId = req.params.id;
         const user = await app.objection.models.user.query().findById(userId);
 
         if (!user) {
-          throw new Error('User not found');
+          req.flash('error', i18next.t('flash.users.edit.error.auth'));
+          reply.redirect(app.reverse('users'));
+          return reply;
         }
 
+        await app.objection.models.user.fromJson(req.body.data); // form data validation
         user.$set(req.body.data);
         await user.$query().patch();
         req.flash('info', i18next.t('flash.users.edit.success'));
         reply.redirect(app.reverse('users'));
       } catch ({data}) {
-        req.flash('error', i18next.t('flash.users.edit.error'));
-        reply.render('users/new', { user, errors: data });
+        req.flash('error', i18next.t('flash.users.edit.error.edit'));
+        reply.render('users/edit', { user: { ...req.body.data, id: userId}, errors: data });
       }
 
       return reply;
