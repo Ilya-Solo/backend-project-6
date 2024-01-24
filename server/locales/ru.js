@@ -42,10 +42,13 @@ export default {
         new: {
           signIn: 'Вход',
           submit: 'Войти',
+          emailPlaceholder: 'Email',
+          passwordPlaceholder: 'Пароль',
         },
       },
       users: {
         id: 'ID',
+        fullName: 'Полное имя',
         email: 'Email',
         createdAt: 'Дата создания',
         actions: 'Действия',
