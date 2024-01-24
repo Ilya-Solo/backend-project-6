@@ -46,6 +46,12 @@ export default {
           passwordPlaceholder: 'Пароль',
         },
       },
+      forms: {
+        email: 'Email',
+        password: 'Пароль',
+        lastName: 'Фамилия',
+        firstName: 'Имя',
+      },
       users: {
         id: 'ID',
         fullName: 'Полное имя',

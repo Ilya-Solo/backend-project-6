@@ -12,6 +12,6 @@ block content
             img.rounded-circle(src=assetPath("avatar.jpg"))
           div.col-12.col-md-6.mt-3.mt-mb-0
             +formFor()(action=route('session') method='post')
-              +input(signInForm, t('views.session.new.emailPlaceholder'), errors)(type="text", placeholder='email')
-              +input(signInForm, t('views.session.new.passwordPlaceholder'))(type="password", placeholder='password')
+              +input(signInForm, 'email', errors)(type="text")
+              +input(signInForm, 'password')(type="password")
               +submit(signInForm)(value=t('views.session.new.submit'))
