@@ -31,6 +31,20 @@ export default {
           success: 'Пользователь успешно удалён',
         },
       },
+      statuses: {
+        create: {
+          error: 'Не удалось создать статус',
+          success: 'Статус успешно создан',
+        },
+        edit: {
+          error: 'Не удалось изменить статус',
+          success: 'Статус успешно изменён',
+        },
+        delete: {
+          error: 'Вы не можете редактировать или удалять несуществующий статус',
+          success: 'Статус успешно удалён',
+        },
+      },
       authError: 'Доступ запрещён! Пожалуйста, авторизируйтесь.',
     },
     layouts: {
@@ -39,6 +53,7 @@ export default {
         signIn: 'Вход',
         signUp: 'Регистрация',
         signOut: 'Выход',
+        statuses: 'Статусы',
       },
     },
     views: {
@@ -55,6 +70,7 @@ export default {
         password: 'Пароль',
         lastName: 'Фамилия',
         firstName: 'Имя',
+        name: 'Наименование',
       },
       users: {
         id: 'ID',
@@ -62,6 +78,7 @@ export default {
         email: 'Email',
         createdAt: 'Дата создания',
         actions: 'Действия',
+        title: 'Пользователи',
         act: {
           delete: 'Удалить',
           edit: 'Изменить',
@@ -72,6 +89,29 @@ export default {
         new: {
           submit: 'Сохранить',
           signUp: 'Регистрация',
+        },
+      },
+      statuses: {
+        id: 'ID',
+        name: 'Полное имя',
+        createdAt: 'Дата создания',
+        actions: 'Действия',
+        title: 'Статусы',
+
+        act: {
+          delete: 'Удалить',
+          edit: 'Изменить',
+        },
+        edit: {
+          title: 'Изменение статуса',
+          submit: 'Изменить',
+          error: 'Не удалось изменить статус'
+        },
+        createStatusButton: 'Создать статус',
+        new: {
+          title: 'Создание статуса',
+          submit: 'Создать',
+          create: 'Создать',
         },
       },
       welcome: {

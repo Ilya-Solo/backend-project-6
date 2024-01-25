@@ -30,3 +30,11 @@ export default (app) => ({
     return date.toLocaleString();
   },
 });
+
+export const redirectRootIfNotuthenticated = (app) => (req, reply, next)=> {
+  if (!req.isAuthenticated()) {
+    req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
+    return reply.redirect(app.reverse('root'));
+  }
+  next();
+}
