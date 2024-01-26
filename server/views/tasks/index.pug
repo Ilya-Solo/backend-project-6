@@ -1,0 +1,34 @@
+extends ../layouts/application.pug
+
+block content
+  .container.wrapper.flex-grow-1
+    h1.display-4.fw-bold.mt-4= t('views.tasks.title')
+    a.btn.btn-primary(href='/tasks/new')= t('views.tasks.createTaskButton')
+    .card.shadow-sm
+      .card-body.p-4
+        .table-responsive
+          table.table.table-borderless.table-striped.mt-5.bg-white
+            thead
+            tr
+              th.py-3= t('views.tasks.id')
+              th.py-3= t('views.tasks.name')
+              th.py-3= t('views.tasks.status')
+              th.py-3= t('views.tasks.creator')
+              th.py-3= t('views.tasks.executor')
+              th.py-3= t('views.tasks.createdAt')
+              th
+            tbody
+              each task in tasks
+                tr
+                  td= task.id
+                  td= task.name
+                  td= task.status
+                  td= task.creator
+                  td= task.executor
+                  td= formatDate(task.createdAt)
+                  td
+                  .d-flex.flex-wrap
+                    a.btn.btn-primary.me-1(href=`/tasks/${task.id}/edit`)= t('views.tasks.act.edit')
+                    form(action=`/tasks/${task.id}`, method="post")
+                    input(name="_method", type="hidden", value="delete")
+                    input.btn.btn-danger(type="submit" value=t('views.tasks.act.delete'))

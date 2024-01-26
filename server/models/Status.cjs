@@ -2,6 +2,7 @@
 
 const BaseModel = require('./BaseModel.cjs');
 const objectionUnique = require('objection-unique');
+const Task = require('./Task.cjs');
 
 const unique = objectionUnique({ fields: ['name'] });
 
@@ -17,6 +18,19 @@ module.exports = class Status extends unique(BaseModel) {
       properties: {
         id: { type: 'integer' },
         name: { type: 'string', minLength: 1 },
+      },
+    };
+  }
+
+  static get relationMappings() {
+    return {
+      tasks: {
+        relation: BaseModel.HasManyRelation,
+        modelClass: Task,
+        join: {
+          from: 'statuses.id',
+          to: 'tasks.statusId',
+        },
       },
     };
   }

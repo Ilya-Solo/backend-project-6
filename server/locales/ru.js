@@ -54,6 +54,7 @@ export default {
         signUp: 'Регистрация',
         signOut: 'Выход',
         statuses: 'Статусы',
+        tasks: 'Задачи',
       },
     },
     views: {
@@ -71,6 +72,9 @@ export default {
         lastName: 'Фамилия',
         firstName: 'Имя',
         name: 'Наименование',
+        descripion: 'Описание',
+        status: 'Статус',
+        executor: 'Исполнитель',
       },
       users: {
         id: 'ID',
@@ -97,7 +101,7 @@ export default {
         createdAt: 'Дата создания',
         actions: 'Действия',
         title: 'Статусы',
-
+        createStatusButton: 'Создать статус',
         act: {
           delete: 'Удалить',
           edit: 'Изменить',
@@ -107,7 +111,31 @@ export default {
           submit: 'Изменить',
           error: 'Не удалось изменить статус'
         },
-        createStatusButton: 'Создать статус',
+        new: {
+          title: 'Создание статуса',
+          submit: 'Создать',
+          create: 'Создать',
+        },
+      },
+      tasks: {
+        id: 'ID',
+        name: 'Наименование',
+        createdAt: 'Дата создания',
+        actions: 'Действия',
+        title: 'Задачи',
+        createTaskButton: 'Создать задачу',
+        status: 'Статус',
+        creator: 'Автор',
+        executor: 'Исполнитель',
+        act: {
+          delete: 'Удалить',
+          edit: 'Изменить',
+        },
+        edit: {
+          title: 'Изменение статуса',
+          submit: 'Изменить',
+          error: 'Не удалось изменить статус'
+        },
         new: {
           title: 'Создание статуса',
           submit: 'Создать',
