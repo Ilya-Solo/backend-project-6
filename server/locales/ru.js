@@ -72,9 +72,9 @@ export default {
         lastName: 'Фамилия',
         firstName: 'Имя',
         name: 'Наименование',
-        descripion: 'Описание',
-        status: 'Статус',
-        executor: 'Исполнитель',
+        description: 'Описание',
+        statusId: 'Статус',
+        executorId: 'Исполнитель',
       },
       users: {
         id: 'ID',
@@ -137,7 +137,7 @@ export default {
           error: 'Не удалось изменить статус'
         },
         new: {
-          title: 'Создание статуса',
+          title: 'Создание задачи',
           submit: 'Создать',
           create: 'Создать',
         },

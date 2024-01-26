@@ -14,9 +14,10 @@ export default (app) => {
       reply.render('tasks/index', { tasks });
       return reply;
     })
-    .get('/tasks/new', { name: 'newTask', preHandler: redirectRootIfNotuthenticated(app) }, (req, reply) => {
-      const task = new app.objection.models.task();
-      reply.render('tasks/new', { task });
+    .get('/tasks/new', { name: 'newTask', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
+      const users = await app.objection.models.user.query();
+      const statuses = await app.objection.models.status.query();
+      reply.render('tasks/new', { statuses, users });
       return reply;
     })
     .get('/tasks/:id/edit', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
