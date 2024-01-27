@@ -35,13 +35,12 @@ mixin textarea(entity, propertyName, errors = {})
       id= inputId
       name=getInputName(propertyName)
       class=classLine
-      value=_.get(entity, propertyName, '')
       rows='3'
-    )&attributes(attributes)
+    )&attributes(attributes)= _.get(entity, propertyName, '')
     if !_.isEmpty(propertyErrors)
       .invalid-feedback= propertyErrors.map(({ message }) => message).join('. ')
 
-mixin select(entities, propertyName, attrsToRender, errors)
+mixin select(entities, propertyName, attrsToRender, errors = {})
   - propertyErrors = _.get(errors, propertyName)
   - classLine = 'form-control' + (_.isEmpty(propertyErrors) ? '' : ' is-invalid')
   - inputId = getInputId(propertyName)
@@ -58,6 +57,8 @@ mixin select(entities, propertyName, attrsToRender, errors)
       if !_.isEmpty(entities)
         for entity of entities
           option(value=entity.id)= attrsToRender.map((attr) => entity[attr]).join(' ')
+    if !_.isEmpty(propertyErrors)
+      .invalid-feedback= propertyErrors.map(({ message }) => message).join('. ')
 
 mixin submit(form = null)
   input(class='btn btn-primary' type='submit')&attributes(attributes)

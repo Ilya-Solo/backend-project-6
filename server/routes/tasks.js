@@ -38,7 +38,9 @@ export default (app) => {
       const taskId = req.params.id;
       try {
         const task = await app.objection.models.task.query().findById(taskId);
-        reply.render('tasks/edit', { task });
+        const users = await app.objection.models.user.query();
+        const statuses = await app.objection.models.status.query();
+        reply.render('tasks/edit', { task, statuses, users });
       } catch ({data}) {
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.redirect(app.reverse('tasks'));
@@ -56,8 +58,11 @@ export default (app) => {
         req.flash('info', i18next.t('flash.tasks.create.success'));
         reply.redirect(app.reverse('tasks'));
       } catch ({ data }) {
+        const users = await app.objection.models.user.query();
+        const statuses = await app.objection.models.status.query();
         req.flash('error', i18next.t('flash.tasks.create.error'));
-        reply.render('tasks/new', { task, errors: data });
+        console.log(taskData)
+        reply.render('tasks/new', { users, task: {...taskData}, statuses, errors: data });
       }
 
       return reply;
