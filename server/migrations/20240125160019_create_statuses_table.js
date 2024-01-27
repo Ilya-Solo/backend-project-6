@@ -21,9 +21,9 @@ export const up = (knex) => {
       table.increments('id').primary();
       table.string('name').notNullable();
       table.string('description');
-      table.integer('statusId').unsigned().notNullable().references('statuses.id');
-      table.integer('creatorId').unsigned().notNullable().references('users.id');
-      table.integer('executorId').unsigned().references('users.id');
+      table.integer('status_id').unsigned().notNullable().references('statuses.id');
+      table.integer('creator_id').unsigned().notNullable().references('users.id');
+      table.integer('executor_id').unsigned().references('users.id');
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
     }),

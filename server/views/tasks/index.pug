@@ -22,9 +22,9 @@ block content
                 tr
                   td= task.id
                   td= task.name
-                  td= task.status
-                  td= task.creator
-                  td= task.executor
+                  td= task.statusName
+                  td= task.creatorName
+                  td= task.executorName
                   td= formatDate(task.createdAt)
                   td
                   .d-flex.flex-wrap
