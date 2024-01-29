@@ -155,6 +155,11 @@ export default {
           submit: 'Создать',
           create: 'Создать',
         },
+        view: {
+          creator: 'Автор',
+          executor: 'Исполнитель',
+          createdAt: 'Дата создания',
+        }
       },
       welcome: {
         index: {

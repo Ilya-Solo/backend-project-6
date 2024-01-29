@@ -24,7 +24,6 @@ export default (app) => {
         .join('users as creator', 'tasks.creatorId', 'creator.id')
         .join('statuses', 'tasks.statusId', 'statuses.id')
         .select('tasks.*', 'statuses.name as statusName', 'executor.firstName as executorName', 'creator.firstName as creatorName');
-      console.log(tasks)
       reply.render('tasks/index', { tasks });
       return reply;
     })
@@ -41,6 +40,21 @@ export default (app) => {
         const users = await app.objection.models.user.query();
         const statuses = await app.objection.models.status.query();
         reply.render('tasks/edit', { task, statuses, users });
+      } catch ({data}) {
+        req.flash('error', i18next.t('flash.tasks.edit.error'));
+        reply.redirect(app.reverse('tasks'));
+      }
+      return reply;
+    })
+    .get('/tasks/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
+      const taskId = req.params.id;
+      try {
+        const task = await app.objection.models.task.query().findById(taskId)
+          .join('users as executor', 'tasks.executorId', 'executor.id')
+          .join('users as creator', 'tasks.creatorId', 'creator.id')
+          .join('statuses', 'tasks.statusId', 'statuses.id')
+          .select('tasks.*', 'statuses.name as statusName', 'executor.firstName as executorName', 'creator.firstName as creatorName');
+        reply.render('tasks/view', { task });
       } catch ({data}) {
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.redirect(app.reverse('tasks'));
