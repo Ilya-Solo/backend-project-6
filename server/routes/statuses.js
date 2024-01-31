@@ -62,19 +62,26 @@ export default (app) => {
     .delete('/statuses/:id', async (req, reply) => {
       try {
         const statusId = req.params.id;
-        const deletedStatus = await app.objection.models.status.query().deleteById(statusId);
+        try {
+          await app.objection.models.task.query()
+            .where('tasks.statusId', '=', statusId);
+        } catch {
+          const deletedStatus = await app.objection.models.status.query().deleteById(statusId);
 
-        if (deletedStatus !== 1) {
-          throw Error;
+          if (deletedStatus !== 1) {
+            throw Error;
+          }
+
+          req.flash('info', i18next.t('flash.statuses.delete.success'));
+          reply.redirect(app.reverse('statuses'));
+          return reply;
         }
 
-        req.flash('info', i18next.t('flash.statuses.delete.success'));
-        reply.redirect(app.reverse('statuses'));
+        throw Error;
       } catch ({data}) {
         req.flash('error', i18next.t('flash.statuses.delete.error'));
         reply.redirect(app.reverse('statuses'));
+        return reply;
       }
-
-      return reply;
     })
 };

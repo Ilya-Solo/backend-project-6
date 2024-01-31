@@ -88,20 +88,32 @@ export default (app) => {
           req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
           reply.redirect(app.reverse('users'));
         } else {
-          const deletedUser = await app.objection.models.user.query().deleteById(userId);
+          const statusId = req.params.id;
+          try {
+            await app.objection.models.task.query()
+              .where('tasks.executorId', '=', userId)
+              .orWhere('tasks.creatorId','=', userId);
+          } catch {
+            const deletedUser = await app.objection.models.user.query().deleteById(userId);
 
-          if (deletedUser !== 1) {
-            throw Error;
+            if (deletedUser !== 1) {
+              throw Error;
+            }
+            req.logOut();
+            req.flash('info', i18next.t('flash.users.delete.success'));
+            reply.redirect(app.reverse('users'));
+            return reply;
           }
-          req.logOut();
-          req.flash('info', i18next.t('flash.users.delete.success'));
-          reply.redirect(app.reverse('users'));
+          throw Error('User can\'t be deleted');
         }
-      } catch ({data}) {
-        req.flash('error', i18next.t('flash.users.delete.error'));
+      } catch (error) {
+        if (error.message = 'User can\'t be deleted') {
+          req.flash('error', i18next.t('flash.users.delete.error.default'));
+        } else {
+          req.flash('error', i18next.t('flash.users.delete.error.auth'));
+        }
         reply.redirect(app.reverse('users'));
+        return reply;
       }
-
-      return reply;
     })
 };
