@@ -1,7 +1,7 @@
 // @ts-check
 
 import i18next from 'i18next';
-import { redirectRootIfNotuthenticated } from '../helpers/index.js'
+import { redirectRootIfNotuthenticated, isAuthoriedUser } from '../helpers/index.js'
 import _ from 'lodash';
 
 const normalizeTaskFormData = (req, res, next) => {
@@ -92,16 +92,21 @@ export default (app) => {
           req.flash('info', i18next.t('flash.tasks.edit.success'));
           reply.redirect(app.reverse('tasks'));
       } catch ({data}) {
-        console.log(data)
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.render('tasks/edit', { task: { ...req.body.data, id: taskId}, errors: data });
       }
 
       return reply;
     })
-    .delete('/tasks/:id', async (req, reply) => {
+    .delete('/tasks/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       try {
         const taskId = req.params.id;
+        const task = await app.objection.models.task.query().findById(taskId);
+
+        if (!isAuthoriedUser(req.user, task.creatorId)) {
+          throw Error;
+        }
+
         const deletedTask = await app.objection.models.task.query().deleteById(taskId);
 
         if (deletedTask !== 1) {

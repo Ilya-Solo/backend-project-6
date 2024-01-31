@@ -1,10 +1,7 @@
 // @ts-check
 
 import i18next from 'i18next';
-
-const isAuthoriedUser = (sessionUser, user) => {
-  return (sessionUser.id === user.id) && (sessionUser.passwordDigest === user.passwordDigest);
-}
+import { isAuthoriedUser } from '../helpers/index.js'
 
 export default (app) => {
   app
@@ -26,7 +23,7 @@ export default (app) => {
         if (!req.isAuthenticated()) {
           req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
           reply.redirect(app.reverse('users'));
-        } else if (!isAuthoriedUser(sessionUserData, user)) {
+        } else if (!isAuthoriedUser(sessionUserData, user.id)) {
           req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
           reply.redirect(app.reverse('users'));
         } else {
@@ -57,13 +54,12 @@ export default (app) => {
     .patch('/users/:id', async (req, reply) => {
       const userId = req.params.id;
       try {
-        // if (req.isAuthenticated()) {
           const user = await app.objection.models.user.query().findById(userId);
           const sessionUserData = req.user;
           if (!req.isAuthenticated()) {
             req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
             reply.redirect(app.reverse('users'));
-          } else if (!isAuthoriedUser(sessionUserData, user)) {
+          } else if (!isAuthoriedUser(sessionUserData, user.id)) {
             req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
             reply.redirect(app.reverse('users'));
           } else {
@@ -88,7 +84,7 @@ export default (app) => {
         if (!req.isAuthenticated()) {
           req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
           reply.redirect(app.reverse('users'));
-        } else if (!isAuthoriedUser(sessionUserData, user)) {
+        } else if (!isAuthoriedUser(sessionUserData, user.id)) {
           req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
           reply.redirect(app.reverse('users'));
         } else {

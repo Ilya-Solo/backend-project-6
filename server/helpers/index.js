@@ -38,3 +38,7 @@ export const redirectRootIfNotuthenticated = (app) => (req, reply, next)=> {
   }
   next();
 }
+
+export const isAuthoriedUser = (sessionUser, requiredUserId) => {
+  return (sessionUser.id === requiredUserId);
+}

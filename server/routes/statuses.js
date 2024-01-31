@@ -3,10 +3,6 @@
 import i18next from 'i18next';
 import { redirectRootIfNotuthenticated } from '../helpers/index.js'
 
-const isAuthoriedStatus = (sessionStatus, status) => {
-  return (sessionStatus.id === status.id) && (sessionStatus.passwordDigest === status.passwordDigest);
-}
-
 export default (app) => {
   app
     .get('/statuses', {name: 'statuses', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
