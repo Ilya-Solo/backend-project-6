@@ -20,9 +20,9 @@ export default (app) => {
   app
     .get('/tasks', {name: 'tasks', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       const tasks = await app.objection.models.task.query()
-        .join('users as executor', 'tasks.executorId', 'executor.id')
+        .leftJoin('users as executor', 'tasks.executorId', 'executor.id')
         .join('users as creator', 'tasks.creatorId', 'creator.id')
-        .join('statuses', 'tasks.statusId', 'statuses.id')
+        .join('statuses', 'tasks.statusId', 'statuses.id')   
         .select('tasks.*', 'statuses.name as statusName', 'executor.firstName as executorName', 'creator.firstName as creatorName');
       reply.render('tasks/index', { tasks });
       return reply;
@@ -50,7 +50,7 @@ export default (app) => {
       const taskId = req.params.id;
       try {
         const task = await app.objection.models.task.query().findById(taskId)
-          .join('users as executor', 'tasks.executorId', 'executor.id')
+          .leftJoin('users as executor', 'tasks.executorId', 'executor.id')
           .join('users as creator', 'tasks.creatorId', 'creator.id')
           .join('statuses', 'tasks.statusId', 'statuses.id')
           .select('tasks.*', 'statuses.name as statusName', 'executor.firstName as executorName', 'creator.firstName as creatorName');
@@ -81,16 +81,18 @@ export default (app) => {
 
       return reply;
     })
-    .patch('/tasks/:id', { preHandler: redirectRootIfNotuthenticated(app) },  async (req, reply) => {
+    .patch('/tasks/:id', { preHandler: [redirectRootIfNotuthenticated(app), normalizeTaskFormData] },  async (req, reply) => {
       const taskId = req.params.id;
       try {
+          const taskData = {...req.body.data, creatorId: req.user.id}
           const task = await app.objection.models.task.query().findById(taskId);
-          await app.objection.models.task.fromJson(req.body.data);
-          task.$set(req.body.data);
+          await app.objection.models.task.fromJson(taskData);
+          task.$set(taskData);
           await task.$query().patch();
           req.flash('info', i18next.t('flash.tasks.edit.success'));
           reply.redirect(app.reverse('tasks'));
       } catch ({data}) {
+        console.log(data)
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.render('tasks/edit', { task: { ...req.body.data, id: taskId}, errors: data });
       }
