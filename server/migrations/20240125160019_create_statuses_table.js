@@ -27,6 +27,18 @@ export const up = (knex) => {
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
     }),
+    knex.schema.createTable('tags', (table) => {
+      table.increments('id').primary();
+      table.string('name');
+      table.timestamp('created_at').defaultTo(knex.fn.now());
+      table.timestamp('updated_at').defaultTo(knex.fn.now());
+    }),
+    knex.schema.createTable('tags_tasks', (table) => {
+      table.integer('tags_id').unsigned().references('tags.id');
+      table.integer('tasks_id').unsigned().references('tasks.id');
+      table.timestamp('created_at').defaultTo(knex.fn.now());
+      table.timestamp('updated_at').defaultTo(knex.fn.now());
+    }), 
   ]);}
   
 
@@ -36,6 +48,8 @@ export const up = (knex) => {
       knex.schema.dropTable('statuses'),
       knex.schema.dropTable('users'),
       knex.schema.dropTable('tasks'),
+      knex.schema.dropTable('tags'),
+      knex.schema.dropTable('tags_tasks'),
     ])
   }
   

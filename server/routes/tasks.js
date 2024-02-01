@@ -83,8 +83,9 @@ export default (app) => {
     })
     .patch('/tasks/:id', { preHandler: [redirectRootIfNotuthenticated(app), normalizeTaskFormData] },  async (req, reply) => {
       const taskId = req.params.id;
+      const taskData = {...req.body.data, creatorId: req.user.id}
+      console.log(taskData)
       try {
-          const taskData = {...req.body.data, creatorId: req.user.id}
           const task = await app.objection.models.task.query().findById(taskId);
           await app.objection.models.task.fromJson(taskData);
           task.$set(taskData);
@@ -92,8 +93,10 @@ export default (app) => {
           req.flash('info', i18next.t('flash.tasks.edit.success'));
           reply.redirect(app.reverse('tasks'));
       } catch ({data}) {
+        const users = await app.objection.models.user.query();
+        const statuses = await app.objection.models.status.query();
         req.flash('error', i18next.t('flash.tasks.edit.error'));
-        reply.render('tasks/edit', { task: { ...req.body.data, id: taskId}, errors: data });
+        reply.render('tasks/edit', { users, task: {...taskData, id: taskId}, statuses, errors: data });
       }
 
       return reply;
