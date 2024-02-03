@@ -58,7 +58,7 @@ export default (app) => {
 
       return reply;
     })
-    .delete('/statuses/:id', async (req, reply) => {
+    .delete('/statuses/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       try {
         const statusId = req.params.id;
         try {

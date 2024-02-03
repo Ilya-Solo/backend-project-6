@@ -30,7 +30,8 @@ export default (app) => {
     .get('/tasks/new', { name: 'newTask', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       const users = await app.objection.models.user.query();
       const statuses = await app.objection.models.status.query();
-      reply.render('tasks/new', { statuses, users });
+      const labels = await app.objection.models.label.query();
+      reply.render('tasks/new', { statuses, users, labels });
       return reply;
     })
     .get('/tasks/:id/edit', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
@@ -64,6 +65,7 @@ export default (app) => {
     .post('/tasks', { preHandler: [redirectRootIfNotuthenticated(app), normalizeTaskFormData] }, async (req, reply) => {
       const task = new app.objection.models.task();
       const taskData = {...req.body.data, creatorId: req.user.id}
+      console.log(req.body.data)
       task.$set(taskData);
 
       try {
@@ -75,7 +77,6 @@ export default (app) => {
         const users = await app.objection.models.user.query();
         const statuses = await app.objection.models.status.query();
         req.flash('error', i18next.t('flash.tasks.create.error'));
-        console.log(taskData)
         reply.render('tasks/new', { users, task: {...taskData}, statuses, errors: data });
       }
 

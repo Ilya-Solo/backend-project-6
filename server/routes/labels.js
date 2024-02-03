@@ -59,7 +59,7 @@ export default (app) => {
 
       return reply;
     })
-    .delete('/labels/:id', async (req, reply) => {
+    .delete('/labels/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       try {
         const labelId = req.params.id;
         try {
