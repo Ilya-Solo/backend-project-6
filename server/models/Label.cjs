@@ -5,9 +5,9 @@ const objectionUnique = require('objection-unique');
 
 const unique = objectionUnique({ fields: ['name'] });
 
-module.exports = class Tag extends unique(BaseModel) {
+module.exports = class Label extends unique(BaseModel) {
   static get tableName() {
-    return 'tags';
+    return 'labels';
   }
 
   static get jsonSchema() {
