@@ -3,6 +3,10 @@
 import i18next from 'i18next';
 import { redirectRootIfNotuthenticated, isAuthoriedUser } from '../helpers/index.js'
 import _ from 'lodash';
+import knex from 'knex';
+import { Model } from 'objection';
+
+Model.knex()
 
 const normalizeTaskFormData = (req, res, next) => {
   Object.keys(req.body.data).filter((key) => key.includes('Id'))
@@ -13,6 +17,9 @@ const normalizeTaskFormData = (req, res, next) => {
         req.body.data[key] = Number(req.body.data[key]);
       }
     });
+  if (req.body.data.labels) {
+    req.body.data.labels = req.body.data.labels.map(labelId => Number(labelId));
+  }
   next();
 }
 
@@ -64,13 +71,25 @@ export default (app) => {
     })
     .post('/tasks', { preHandler: [redirectRootIfNotuthenticated(app), normalizeTaskFormData] }, async (req, reply) => {
       const task = new app.objection.models.task();
-      const taskData = {...req.body.data, creatorId: req.user.id}
-      console.log(req.body.data)
+      const {labels, ...taskRequiredData} = req.body.data;
+      const taskData = {...taskRequiredData, creatorId: req.user.id}
       task.$set(taskData);
 
       try {
-        const validTask = await app.objection.models.task.fromJson(taskData);
-        await app.objection.models.task.query().insert(validTask);
+        await Model.transaction(async (trx) => {
+          console.log(taskData)
+          const validTask = await app.objection.models.task.fromJson(taskData); 
+          const taskFullObject = await app.objection.models.task.query().insert(validTask);
+          // const labelObjects = labels.map((label) => ({taskId: taskFullObject.id, labelId: label}));
+          // console.log(labelObjects)
+          // labelObjects.forEach(async (labelObject) => {
+          //   const labelTask = new app.objection.models.labelTask();
+          //   labelTask.$set(labelObject);
+          //   const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
+          //   await app.objection.models.labelTask.query().insert(validLabelTask);
+          // })
+          await trx.commit();
+        });
         req.flash('info', i18next.t('flash.tasks.create.success'));
         reply.redirect(app.reverse('tasks'));
       } catch ({ data }) {
@@ -85,7 +104,6 @@ export default (app) => {
     .patch('/tasks/:id', { preHandler: [redirectRootIfNotuthenticated(app), normalizeTaskFormData] },  async (req, reply) => {
       const taskId = req.params.id;
       const taskData = {...req.body.data, creatorId: req.user.id}
-      console.log(taskData)
       try {
           const task = await app.objection.models.task.query().findById(taskId);
           await app.objection.models.task.fromJson(taskData);
