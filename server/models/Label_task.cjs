@@ -3,7 +3,10 @@
 const BaseModel = require('./BaseModel.cjs');
 const objectionUnique = require('objection-unique');
 
-const unique = objectionUnique({ fields: ['tagId', 'taskId'] });
+const unique = objectionUnique({ 
+  fields: ['labelId', 'taskId'],
+  composite: ['labelId', 'taskId'],
+});
 
 module.exports = class LabelTask extends unique(BaseModel) {
   static get tableName() {
@@ -13,9 +16,9 @@ module.exports = class LabelTask extends unique(BaseModel) {
   static get jsonSchema() {
     return {
       type: 'object',
-      required: ['tagId', 'taskId'],
+      required: ['labelId', 'taskId'],
       properties: {
-        tagId: { type: 'integer' },
+        labelId: { type: 'integer' },
         taskId: { type: 'integer' },
       },
     };

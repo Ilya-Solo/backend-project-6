@@ -6,7 +6,7 @@ import _ from 'lodash';
 import knex from 'knex';
 import { Model } from 'objection';
 
-Model.knex()
+Model.knex(knex);
 
 const normalizeTaskFormData = (req, res, next) => {
   Object.keys(req.body.data).filter((key) => key.includes('Id'))
@@ -18,7 +18,7 @@ const normalizeTaskFormData = (req, res, next) => {
       }
     });
   if (req.body.data.labels) {
-    req.body.data.labels = req.body.data.labels.map(labelId => Number(labelId));
+    req.body.data.labels = Array(req.body.data.labels).flat().map(labelId => Number(labelId));
   }
   next();
 }
@@ -72,30 +72,30 @@ export default (app) => {
     .post('/tasks', { preHandler: [redirectRootIfNotuthenticated(app), normalizeTaskFormData] }, async (req, reply) => {
       const task = new app.objection.models.task();
       const {labels, ...taskRequiredData} = req.body.data;
+      const labelsValues = labels || [];
       const taskData = {...taskRequiredData, creatorId: req.user.id}
       task.$set(taskData);
 
       try {
         await Model.transaction(async (trx) => {
-          console.log(taskData)
-          const validTask = await app.objection.models.task.fromJson(taskData); 
-          const taskFullObject = await app.objection.models.task.query().insert(validTask);
-          // const labelObjects = labels.map((label) => ({taskId: taskFullObject.id, labelId: label}));
-          // console.log(labelObjects)
-          // labelObjects.forEach(async (labelObject) => {
-          //   const labelTask = new app.objection.models.labelTask();
-          //   labelTask.$set(labelObject);
-          //   const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
-          //   await app.objection.models.labelTask.query().insert(validLabelTask);
-          // })
+          const validTask = await app.objection.models.task.fromJson(taskData);
+          const taskFullObject = await app.objection.models.task.query(trx).insert(validTask);
+          const labelObjects = labelsValues.map((label) => ({taskId: taskFullObject.id, labelId: label}));
+          await Promise.all(labelObjects.map(async (labelObject) => {
+            const labelTask = new app.objection.models.labelTask();
+            labelTask.$set(labelObject);
+            const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
+            return app.objection.models.labelTask.query(trx).insert(validLabelTask);
+          }))
           await trx.commit();
         });
         req.flash('info', i18next.t('flash.tasks.create.success'));
         reply.redirect(app.reverse('tasks'));
-      } catch ({ data }) {
+      } catch (error) {
         const users = await app.objection.models.user.query();
         const statuses = await app.objection.models.status.query();
         req.flash('error', i18next.t('flash.tasks.create.error'));
+        console.log(error);
         reply.render('tasks/new', { users, task: {...taskData}, statuses, errors: data });
       }
 

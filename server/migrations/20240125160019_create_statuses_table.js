@@ -34,8 +34,8 @@ export const up = (knex) => {
       table.timestamp('updated_at').defaultTo(knex.fn.now());
     }),
     knex.schema.createTable('labels_tasks', (table) => {
-      table.integer('labels_id').unsigned().references('labels.id');
-      table.integer('tasks_id').unsigned().references('tasks.id');
+      table.integer('label_id').unsigned().references('labels.id');
+      table.integer('task_id').unsigned().references('tasks.id');
       table.timestamp('created_at').defaultTo(knex.fn.now());
       table.timestamp('updated_at').defaultTo(knex.fn.now());
     }), 
