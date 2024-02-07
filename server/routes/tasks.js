@@ -45,11 +45,18 @@ export default (app) => {
       const taskId = req.params.id;
       try {
         const task = await app.objection.models.task.query().findById(taskId);
+        const labelsTasks = await app.objection.models.labelTask.query()
+          .select('label_id')
+          .where('task_id', '=', taskId)
+        task.labels = labelsTasks.map(labelTask => labelTask.labelId);
+        
         const users = await app.objection.models.user.query();
         const statuses = await app.objection.models.status.query();
         const labels = await app.objection.models.label.query();
+        console.log(labels)
         reply.render('tasks/edit', { task, statuses, users, labels });
-      } catch ({data}) {
+      } catch (error) {
+        console.log(error)
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.redirect(app.reverse('tasks'));
       }
@@ -109,33 +116,30 @@ export default (app) => {
       const taskData = {...taskRequiredData, creatorId: req.user.id}
       try {
         await Model.transaction(async (trx) => {
-          const task = await app.objection.models.task.query().findById(taskId);
-          await app.objection.models.task.fromJson(taskData);
-          task.$set(taskData);
-          await task.$query().patch();
-          const labelObjects = labelsValues.map((label) => ({taskId, labelId: label}));
-          await app.objection.models.labelTask.query()
-            .delete()
-            .where('task_id', '=', taskId)
-          await Promise.all(labelObjects.map(async (labelObject) => {
-            const labelTask = new app.objection.models.labelTask();
-            labelTask.$set(labelObject);
-            const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
-            return app.objection.models.labelTask.query(trx).insert(validLabelTask);
-          }))
+          // const task = await app.objection.models.task.query().findById(taskId);
+          // await app.objection.models.task.fromJson(taskData);
+          // task.$set(taskData);
+          // await task.$query().patch();
+          // const labelObjects = labelsValues.map((label) => ({taskId, labelId: label}));
+          // await app.objection.models.labelTask.query()
+          //   .delete()
+          //   .where('task_id', '=', taskId)
+          // await Promise.all(labelObjects.map(async (labelObject) => {
+          //   const labelTask = new app.objection.models.labelTask();
+          //   labelTask.$set(labelObject);
+          //   const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
+          //   return app.objection.models.labelTask.query(trx).insert(validLabelTask);
+          // }))
           await trx.commit();
         });
-        const task = await app.objection.models.task.query().findById(taskId);
-        await app.objection.models.task.fromJson(taskData);
-        task.$set(taskData);
-        await task.$query().patch();
         req.flash('info', i18next.t('flash.tasks.edit.success'));
         reply.redirect(app.reverse('tasks'));
       } catch ({data}) {
         const users = await app.objection.models.user.query();
         const statuses = await app.objection.models.status.query();
+        const labels = await app.objection.models.label.query();
         req.flash('error', i18next.t('flash.tasks.edit.error'));
-        reply.render('tasks/edit', { users, task: {...taskData, id: taskId}, statuses, errors: data });
+        reply.render('tasks/edit',{ users, task: {...req.body.data}, statuses, labels, errors: data });
       }
 
       return reply;
