@@ -1,5 +1,6 @@
 - const getInputName = (property) => `data[${property}]`
 - const getInputId = (property) => `data_${property}`
+- const includes = (entity, value) => Array.isArray(entity) ? entity.includes(value) : entity === value
 
 mixin formFor(entity = null)
   form&attributes(attributes)
@@ -56,7 +57,7 @@ mixin select(entities, propertyName, attrsToRender, entityIdsToSelect, errors = 
       option
       if !_.isEmpty(entities)
         for entity of entities
-          if (entityIdsToSelect.includes(entity.id))
+          if (includes(entityIdsToSelect, entity.id))
             option(value=entity.id, selected)= attrsToRender.map(attr => entity[attr]).join(' ')
           else
             option(value=entity.id)= attrsToRender.map(attr => entity[attr]).join(' ')

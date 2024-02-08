@@ -110,26 +110,26 @@ export default (app) => {
       return reply;
     })
     .patch('/tasks/:id', { preHandler: [redirectRootIfNotuthenticated(app), normalizeTaskFormData] },  async (req, reply) => {
-      const taskId = req.params.id;
+      const taskId = Number(req.params.id);
       const {labels, ...taskRequiredData} = req.body.data;
       const labelsValues = labels || [];
       const taskData = {...taskRequiredData, creatorId: req.user.id}
       try {
         await Model.transaction(async (trx) => {
-          // const task = await app.objection.models.task.query().findById(taskId);
-          // await app.objection.models.task.fromJson(taskData);
-          // task.$set(taskData);
-          // await task.$query().patch();
-          // const labelObjects = labelsValues.map((label) => ({taskId, labelId: label}));
-          // await app.objection.models.labelTask.query()
-          //   .delete()
-          //   .where('task_id', '=', taskId)
-          // await Promise.all(labelObjects.map(async (labelObject) => {
-          //   const labelTask = new app.objection.models.labelTask();
-          //   labelTask.$set(labelObject);
-          //   const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
-          //   return app.objection.models.labelTask.query(trx).insert(validLabelTask);
-          // }))
+          const task = await app.objection.models.task.query(trx).findById(taskId);
+          await app.objection.models.task.fromJson(taskData);
+          task.$set(taskData);
+          await task.$query(trx).patch();
+          const labelObjects = labelsValues.map((label) => ({taskId, labelId: label}));
+          await app.objection.models.labelTask.query(trx)
+            .delete()
+            .where('task_id', '=', taskId)
+          await Promise.all(labelObjects.map(async (labelObject) => {
+            const labelTask = new app.objection.models.labelTask();
+            labelTask.$set(labelObject);
+            const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
+            return app.objection.models.labelTask.query(trx).insert(validLabelTask);
+          }))
           await trx.commit();
         });
         req.flash('info', i18next.t('flash.tasks.edit.success'));
@@ -139,7 +139,7 @@ export default (app) => {
         const statuses = await app.objection.models.status.query();
         const labels = await app.objection.models.label.query();
         req.flash('error', i18next.t('flash.tasks.edit.error'));
-        reply.render('tasks/edit',{ users, task: {...req.body.data}, statuses, labels, errors: data });
+        reply.render('tasks/edit',{ users, task: {...req.body.data, id: taskId}, statuses, labels, errors: data });
       }
 
       return reply;
