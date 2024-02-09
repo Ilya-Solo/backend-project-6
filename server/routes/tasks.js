@@ -26,11 +26,24 @@ const normalizeTaskFormData = (req, res, next) => {
 export default (app) => {
   app
     .get('/tasks', {name: 'tasks', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
+      const filterObject = req.query;
       const tasks = await app.objection.models.task.query()
-        .leftJoin('users as executor', 'tasks.executorId', 'executor.id')
-        .join('users as creator', 'tasks.creatorId', 'creator.id')
-        .join('statuses', 'tasks.statusId', 'statuses.id')   
-        .select('tasks.*', 'statuses.name as statusName', 'executor.firstName as executorName', 'creator.firstName as creatorName');
+        .withGraphJoined('[status, creator, executor, labels]')
+        .where(builder => {
+          if (filterObject.status) {
+            builder.where('status.id', '=', filterObject.status);
+          }
+          if (filterObject.executor) {
+            builder.where('executor.id', '=', filterObject.executor);
+          }
+          if (filterObject.label) {
+            builder.where('labels.id', '=', filterObject.label);
+          }
+          if (filterObject.isCreatorUser === 'on') {
+            builder.where('creator.id', '=', req.user.id);
+          }
+        });
+
       reply.render('tasks/index', { tasks });
       return reply;
     })
