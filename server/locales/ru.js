@@ -107,7 +107,9 @@ export default {
         description: 'Описание',
         statusId: 'Статус',
         executorId: 'Исполнитель',
-        labels: 'Метки',
+        label: 'Метки',
+        executor: 'Исполнитель',
+        status: 'Статус',
       },
       users: {
         id: 'ID',

@@ -64,6 +64,27 @@ mixin select(entities, propertyName, attrsToRender, entityIdsToSelect, errors = 
     if !_.isEmpty(propertyErrors)
       .invalid-feedback= propertyErrors.map(({ message }) => message).join('. ')
 
+mixin filterSelect(entities, propertyName, attrsToRender, entityIdsToSelect)
+  - classLine = 'form-control'
+  - inputId = getInputId(propertyName)
+  .col-12.col-md
+    .input-group.mb-3
+      label.input-group-text(
+        for= inputId
+      )= t(`views.forms.${propertyName}`)
+      select(
+        id= inputId
+        name= propertyName
+        class= classLine
+      )&attributes(attributes)
+        option
+        if !_.isEmpty(entities)
+          for entity of entities
+            if (includes(entityIdsToSelect, entity.id))
+              option(value=entity.id, selected)= attrsToRender.map(attr => entity[attr]).join(' ')
+            else
+              option(value=entity.id)= attrsToRender.map(attr => entity[attr]).join(' ')
+
 mixin submit(form = null)
   input(class='btn btn-primary' type='submit')&attributes(attributes)
 

@@ -23,10 +23,22 @@ const normalizeTaskFormData = (req, res, next) => {
   next();
 }
 
+const normalizeQueryParams = (req, res, next) => {
+  Object.keys(req.query).forEach((key) => {
+      try {
+        req.query[key] = Number(req.query[key]);
+      } catch {}
+    });
+  next();
+}
+
 export default (app) => {
   app
-    .get('/tasks', {name: 'tasks', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
+    .get('/tasks', {name: 'tasks', preHandler: [redirectRootIfNotuthenticated(app), normalizeQueryParams] }, async (req, reply) => {
       const filterObject = req.query;
+      const users = await app.objection.models.user.query();
+      const statuses = await app.objection.models.status.query();
+      const labels = await app.objection.models.label.query();
       const tasks = await app.objection.models.task.query()
         .withGraphJoined('[status, creator, executor, labels]')
         .where(builder => {
@@ -37,14 +49,13 @@ export default (app) => {
             builder.where('executor.id', '=', filterObject.executor);
           }
           if (filterObject.label) {
-            builder.where('labels.id', '=', filterObject.label);
+            builder.where('labels.labelId', '=', filterObject.label);
           }
           if (filterObject.isCreatorUser === 'on') {
             builder.where('creator.id', '=', req.user.id);
           }
         });
-
-      reply.render('tasks/index', { tasks });
+      reply.render('tasks/index', { tasks, statuses, users, labels, filterObject });
       return reply;
     })
     .get('/tasks/new', { name: 'newTask', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
