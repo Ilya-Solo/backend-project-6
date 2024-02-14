@@ -81,6 +81,7 @@ export default (app) => {
         const userId = req.params.id;
         const user = await app.objection.models.user.query().findById(userId);
         const sessionUserData = req.user;
+        
         if (!req.isAuthenticated()) {
           req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
           reply.redirect(app.reverse('users'));
@@ -88,17 +89,21 @@ export default (app) => {
           req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
           reply.redirect(app.reverse('users'));
         } else {
-          const statusId = req.params.id;
+          
           try {
-            await app.objection.models.task.query()
+            const tasks = await app.objection.models.task.query()
               .where('tasks.executorId', '=', userId)
               .orWhere('tasks.creatorId','=', userId);
+            if (tasks.length === 0) {
+              throw Error;
+            }
           } catch {
             const deletedUser = await app.objection.models.user.query().deleteById(userId);
 
             if (deletedUser !== 1) {
               throw Error;
             }
+            
             req.logOut();
             req.flash('info', i18next.t('flash.users.delete.success'));
             reply.redirect(app.reverse('users'));

@@ -35,7 +35,7 @@ block content
               a(href= `/tasks/${task.id}`)= task.name
             td= task.status.name
             td= [task.creator.firstName, task.creator.firstName].join(' ')
-            td= [task.executor.firstName, task.executor.firstName].join(' ')
+            td= task.executor ? [task.executor.firstName, task.executor.lastName].join(' ') : ''
             td= formatDate(task.createdAt)
             td
               .d-flex.flex-wrap
