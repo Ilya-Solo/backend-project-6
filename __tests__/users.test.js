@@ -67,6 +67,7 @@ describe('test users CRUD', () => {
       passwordDigest: encrypt(params.password),
     };
     const user = await models.user.query().findOne({ email: params.email });
+
     expect(user).toMatchObject(expected);
   });
 

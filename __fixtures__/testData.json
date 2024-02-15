@@ -1,11 +1,15 @@
 {
   "users": {
     "new": {
+      "firstName": "Malika",
+      "lastName": "Hodkiewicz",
       "email": "malika_hodkiewicz75@live.com",
       "password": "RLJvaIgPOnX5r03"
     },
     "existing": {
-      "email": "lawrence.kulas87@outlook.com",
+      "firstName": "Alex",
+      "lastName": "Johnson",
+      "email": "alex.johnson@example.com",
       "password": "O6AvLIQL1cbzrre"
     }
   }
