@@ -11,6 +11,20 @@
       "lastName": "Johnson",
       "email": "alex.johnson@example.com",
       "password": "O6AvLIQL1cbzrre"
+    },
+    "edit": {
+      "firstName": "Ayesha",
+      "lastName": "Kumar",
+      "email": "malika_hodkiewicz75@live.com",
+      "password": "9h2PzRbNqUd7T1s"
+    }
+  },
+  "statuses" : {
+    "new": {
+      "name": "pending"
+    },
+    "edit": {
+      "name": "PENDING"
     }
   }
 }

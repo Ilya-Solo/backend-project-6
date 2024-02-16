@@ -71,6 +71,81 @@ describe('test users CRUD', () => {
     expect(user).toMatchObject(expected);
   });
 
+  it('patch', async () => {
+    const params = testData.users.edit;
+
+    const responseSignIn = await app.inject({
+      method: 'POST',
+      url: app.reverse('session'),
+      payload: {
+        data: testData.users.new,
+      },
+    });
+
+    const [sessionCookie] = responseSignIn.cookies;
+    const { name, value } = sessionCookie;
+    const cookie = { [name]: value };
+
+    const user = await models.user.query().findOne({ email: testData.users.new.email });
+    
+    const response = await app.inject({
+      method: 'PATCH',
+      url: `${app.reverse('users')}/${user.id}`,
+      payload: {
+        data: testData.users.edit,
+      },
+      cookies: cookie,
+    });
+
+    const edittedUser = await models.user.query().findById(user.id);
+
+    expect(response.statusCode).toBe(302);
+    const expected = {
+      ..._.omit(params, 'password'),
+      passwordDigest: encrypt(params.password),
+    };
+    
+
+    expect(edittedUser).toMatchObject(expected);
+
+    const responseSignOut = await app.inject({
+      method: 'DELETE',
+      url: app.reverse('session'),
+      cookies: cookie,
+    });
+  });
+
+  it('delete', async () => {
+    const params = testData.users.edit;
+
+    const responseSignIn = await app.inject({
+      method: 'POST',
+      url: app.reverse('session'),
+      payload: {
+        data: testData.users.edit,
+      },
+    });
+
+    const [sessionCookie] = responseSignIn.cookies;
+    const { name, value } = sessionCookie;
+    const cookie = { [name]: value };
+
+    const user = await models.user.query().findOne({ email: testData.users.edit.email });
+    
+    const response = await app.inject({
+      method: 'DELETE',
+      url: `${app.reverse('users')}/${user.id}`,
+      cookies: cookie,
+    });
+
+    const deletedUser = await models.user.query().findById(user.id);
+
+    expect(response.statusCode).toBe(302);
+    
+
+    expect(deletedUser).toBeFalsy();
+  });
+
   afterEach(async () => {
     // Пока Segmentation fault: 11
     // после каждого теста откатываем миграции

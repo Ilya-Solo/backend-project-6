@@ -61,23 +61,24 @@ export default (app) => {
     .delete('/statuses/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       try {
         const statusId = req.params.id;
-        try {
-          await app.objection.models.task.query()
-            .where('tasks.statusId', '=', statusId);
-        } catch {
+        const statuses = (await app.objection.models.task.query()
+          .where('tasks.statusId', '=', statusId));
+        const isStatusUsedInTask = statuses.length !== 0;
+        if (isStatusUsedInTask) {
+          throw Error('Used in task');
+        } else {
           const deletedStatus = await app.objection.models.status.query().deleteById(statusId);
 
           if (deletedStatus !== 1) {
-            throw Error;
+            throw Error();
           }
 
           req.flash('info', i18next.t('flash.statuses.delete.success'));
           reply.redirect(app.reverse('statuses'));
           return reply;
         }
-
-        throw Error;
-      } catch ({data}) {
+      } catch (error) {
+        console.log(error)
         req.flash('error', i18next.t('flash.statuses.delete.error'));
         reply.redirect(app.reverse('statuses'));
         return reply;
