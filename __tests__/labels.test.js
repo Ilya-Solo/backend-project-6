@@ -6,7 +6,7 @@ import fastify from 'fastify';
 import init from '../server/plugin.js';
 import { getTestData, prepareData, getUserCookie } from './helpers/index.js';
 
-describe('test statuses CRUD', () => {
+describe('test labels CRUD', () => {
   let app;
   let knex;
   let models;
@@ -38,7 +38,7 @@ describe('test statuses CRUD', () => {
   it('index', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: app.reverse('statuses'),
+      url: app.reverse('labels'),
       cookies,
     });
 
@@ -48,7 +48,7 @@ describe('test statuses CRUD', () => {
   it('new', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: app.reverse('newStatus'),
+      url: app.reverse('newLabel'),
       cookies,
     });
 
@@ -56,10 +56,10 @@ describe('test statuses CRUD', () => {
   });
 
   it('no login create', async () => {
-    const params = testData.statuses.new;
+    const params = testData.labels.new;
     const response = await app.inject({
       method: 'POST',
-      url: app.reverse('statuses'),
+      url: app.reverse('labels'),
       payload: {
         data: params,
       },
@@ -67,16 +67,16 @@ describe('test statuses CRUD', () => {
 
     expect(response.statusCode).toBe(302);
     const expected = {...params};
-    const status = await models.status.query().findOne({ name: params.name });
+    const label = await models.label.query().findOne({ name: params.name });
 
-    expect(status).toBeFalsy();
+    expect(label).toBeFalsy();
   });
 
   it('create', async () => {
-    const params = testData.statuses.new;
+    const params = testData.labels.new;
     const response = await app.inject({
       method: 'POST',
-      url: app.reverse('statuses'),
+      url: app.reverse('labels'),
       payload: {
         data: params,
       },
@@ -85,91 +85,91 @@ describe('test statuses CRUD', () => {
 
     expect(response.statusCode).toBe(302);
     const expected = {...params};
-    const status = await models.status.query().findOne({ name: params.name });
+    const label = await models.label.query().findOne({ name: params.name });
 
-    expect(status).toMatchObject(expected);
+    expect(label).toMatchObject(expected);
   });
 
   it('no login patch', async () => {
-    const params = testData.statuses.edit;
+    const params = testData.labels.edit;
 
-    const status = await models.status.query().findOne({ name: testData.statuses.new.name });
+    const label = await models.label.query().findOne({ name: testData.labels.new.name });
     
     const response = await app.inject({
       method: 'PATCH',
-      url: `${app.reverse('statuses')}/${status.id}`,
+      url: `${app.reverse('labels')}/${label.id}`,
       payload: {
-        data: testData.statuses.edit,
+        data: testData.labels.edit,
       },
     });
 
-    const edittedStatus = await models.status.query().findById(status.id);
+    const edittedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
-    const expected = {...testData.statuses.new};
+    const expected = {...testData.labels.new};
     
 
-    expect(edittedStatus).toMatchObject(expected);
+    expect(edittedLabel).toMatchObject(expected);
   });
 
   it('patch', async () => {
-    const params = testData.statuses.edit;
+    const params = testData.labels.edit;
 
-    const status = await models.status.query().findOne({ name: testData.statuses.new.name });
+    const label = await models.label.query().findOne({ name: testData.labels.new.name });
     
     const response = await app.inject({
       method: 'PATCH',
-      url: `${app.reverse('statuses')}/${status.id}`,
+      url: `${app.reverse('labels')}/${label.id}`,
       payload: {
-        data: testData.statuses.edit,
+        data: testData.labels.edit,
       },
       cookies,
     });
 
-    const edittedStatus = await models.status.query().findById(status.id);
+    const edittedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
     const expected = {...params};
     
 
-    expect(edittedStatus).toMatchObject(expected);
+    expect(edittedLabel).toMatchObject(expected);
   });
 
   it('no login delete', async () => {
-    const params = testData.statuses.edit;
+    const params = testData.labels.edit;
 
-    const status = await models.status.query().findOne({ name: testData.statuses.edit.name });
+    const label = await models.label.query().findOne({ name: testData.labels.edit.name });
     
     const response = await app.inject({
       method: 'DELETE',
-      url: `${app.reverse('statuses')}/${status.id}`,
+      url: `${app.reverse('labels')}/${label.id}`,
     });
 
-    const deletedStatus = await models.status.query().findById(status.id);
+    const deletedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
     
 
-    expect(deletedStatus).toMatchObject(status);
+    expect(deletedLabel).toMatchObject(label);
   });
 
   it('delete', async () => {
-    const params = testData.statuses.edit;
+    const params = testData.labels.edit;
 
-    const status = await models.status.query().findOne({ name: testData.statuses.edit.name });
+    const label = await models.label.query().findOne({ name: testData.labels.edit.name });
     
     const response = await app.inject({
       method: 'DELETE',
-      url: `${app.reverse('statuses')}/${status.id}`,
+      url: `${app.reverse('labels')}/${label.id}`,
       cookies,
     });
 
-    const deletedStatus = await models.status.query().findById(status.id);
+    const deletedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
     
 
-    expect(deletedStatus).toBeFalsy();
+    expect(deletedLabel).toBeFalsy();
   });
 
   afterEach(async () => {

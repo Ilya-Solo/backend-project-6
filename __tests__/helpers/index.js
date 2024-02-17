@@ -10,6 +10,14 @@ const getFixturePath = (filename) => path.join('..', '..', '__fixtures__', filen
 const readFixture = (filename) => fs.readFileSync(new URL(getFixturePath(filename), import.meta.url), 'utf-8').trim();
 const getFixtureData = (filename) => JSON.parse(readFixture(filename));
 export const getUserCookie = async (app, user) => {
+  await app.inject({
+    method: 'POST',
+    url: app.reverse('users'),
+    payload: {
+      data: user,
+    },
+  });
+
   const responseSignIn = await app.inject({
     method: 'POST',
     url: app.reverse('session'),
@@ -31,4 +39,5 @@ export const prepareData = async (app) => {
   // получаем данные из фикстур и заполняем БД
   await knex('users').insert(getFixtureData('users.json'));
   await knex('statuses').insert(getFixtureData('statuses.json'));
+  await knex('labels').insert(getFixtureData('labels.json'));
 };

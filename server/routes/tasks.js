@@ -77,10 +77,8 @@ export default (app) => {
         const users = await app.objection.models.user.query();
         const statuses = await app.objection.models.status.query();
         const labels = await app.objection.models.label.query();
-        console.log(labels)
         reply.render('tasks/edit', { task, statuses, users, labels });
       } catch (error) {
-        console.log(error)
         req.flash('error', i18next.t('flash.tasks.edit.error'));
         reply.redirect(app.reverse('tasks'));
       }

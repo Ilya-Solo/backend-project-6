@@ -1,11 +1,11 @@
 [
-    {
-        "name": "Not started"
-    },
-    {
-        "name": "In background"
-    },
-    {
-        "name": "Almost finished"
-    }
+  {
+    "name": "Not started"
+  },
+  {
+    "name": "In background"
+  },
+  {
+    "name": "Almost finished"
+  }
 ]

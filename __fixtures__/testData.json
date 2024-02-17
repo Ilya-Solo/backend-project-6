@@ -19,12 +19,41 @@
       "password": "9h2PzRbNqUd7T1s"
     }
   },
-  "statuses" : {
+  "statuses": {
     "new": {
       "name": "pending"
     },
     "edit": {
       "name": "PENDING"
+    }
+  },
+  "labels": {
+    "new": {
+      "name": "label"
+    },
+    "edit": {
+      "name": "LABEL"
+    }
+  },
+  "tasks": {
+    "newFilledTask": {
+      "name": "Task 4",
+      "description": "This is the first task",
+      "statusId": 1,
+      "executorId": 2,
+      "labels": [1, 2]
+    },
+    "newNoExecutorAndLabelsTask": {
+      "name": "Task 4",
+      "description": "This is the second task",
+      "statusId": 3
+    },
+    "editFilledTask": {
+      "name": "Task 4 edited",
+      "description": "This is the first task edited",
+      "statusId": 2,
+      "executorId": 1,
+      "labels": [3]
     }
   }
 }

@@ -6,7 +6,6 @@ import { redirectRootIfNotuthenticated } from '../helpers/index.js'
 export default (app) => {
   app
     .get('/labels', {name: 'labels', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
-      console.log(Object.keys(await app.objection.models));
       const labels = await app.objection.models.label.query();
       reply.render('labels/index', { labels });
       return reply;
