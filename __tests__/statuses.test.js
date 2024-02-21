@@ -4,7 +4,7 @@ import _ from 'lodash';
 import fastify from 'fastify';
 
 import init from '../server/plugin.js';
-import { getTestData, prepareData, getUserCookie } from './helpers/index.js';
+import { getTestData, prepareData, getUserCookie, stringifyValues } from './helpers/index.js';
 
 describe('test statuses CRUD', () => {
   let app;
@@ -151,6 +151,41 @@ describe('test statuses CRUD', () => {
     
 
     expect(deletedStatus).toMatchObject(status);
+  });
+
+  it('delete while presented in task', async () => {
+    const params = testData.statuses.edit;
+
+    const status = await models.status.query().findOne({ name: params.name });
+
+    const taskObj = testData.taskToCheckEntitiesDelete;
+    taskObj["statusId"] = status.id
+    const responseTaskCreate = await app.inject({
+      method: 'POST',
+      url: app.reverse('tasks'),
+      payload: {
+        data: stringifyValues(taskObj),
+      },
+      cookies,
+    });
+
+    const response = await app.inject({
+      method: 'DELETE',
+      url: `${app.reverse('statuses')}/${status.id}`,
+      cookies,
+    });
+
+    const deletedStatus = await models.status.query().findById(status.id);
+
+    expect(response.statusCode).toBe(302);
+    expect(deletedStatus).toMatchObject(status);
+    
+    const task = await models.task.query().findOne({ name: taskObj.name }); 
+    const responseDeleteTask = await app.inject({
+      method: 'DELETE',
+      url: `${app.reverse('tasks')}/${task.id}`,
+      cookies,
+    });
   });
 
   it('delete', async () => {

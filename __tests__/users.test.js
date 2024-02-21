@@ -5,7 +5,7 @@ import fastify from 'fastify';
 
 import init from '../server/plugin.js';
 import encrypt from '../server/lib/secure.cjs';
-import { getTestData, prepareData } from './helpers/index.js';
+import { getTestData, prepareData, getUserCookie, stringifyValues } from './helpers/index.js';
 
 describe('test users CRUD', () => {
   let app;
@@ -112,6 +112,59 @@ describe('test users CRUD', () => {
       method: 'DELETE',
       url: app.reverse('session'),
       cookies: cookie,
+    });
+  });
+
+  it('delete while presented in task', async () => {
+    const taskCookies = await getUserCookie(app, testData.users.new);
+    const params = testData.users.edit;
+
+    const responseSignIn = await app.inject({
+      method: 'POST',
+      url: app.reverse('session'),
+      payload: {
+        data: testData.users.edit,
+      },
+    });
+
+    const [sessionCookie] = responseSignIn.cookies;
+    const { name, value } = sessionCookie;
+    const cookie = { [name]: value };
+
+    const user = await models.user.query().findOne({ email: testData.users.edit.email });
+
+    const taskObj = testData.taskToCheckEntitiesDelete;
+    taskObj["executorId"] = user.id
+    const responseTaskCreate = await app.inject({
+      method: 'POST',
+      url: app.reverse('tasks'),
+      payload: {
+        data: stringifyValues(taskObj),
+      },
+      cookies: taskCookies,
+    });
+
+    const aaa = await models.task.query();
+    console.log(taskCookies)
+    
+    const response = await app.inject({
+      method: 'DELETE',
+      url: `${app.reverse('users')}/${user.id}`,
+      cookies: cookie,
+    });
+
+    const deletedUser = await models.user.query().findById(user.id);
+
+    expect(response.statusCode).toBe(302);
+    
+
+    expect(deletedUser).toBeFalsy();
+
+    const task = await models.task.query().findOne({ name: taskObj.name }); 
+    const responseDeleteTask = await app.inject({
+      method: 'DELETE',
+      url: `${app.reverse('tasks')}/${task.id}`,
+      cookies: taskCookies,
     });
   });
 

@@ -175,11 +175,14 @@ export default (app) => {
           throw Error;
         }
 
-        const deletedTask = await app.objection.models.task.query().deleteById(taskId);
+        await Model.transaction(async (trx) => {
+          const deletedTask = await app.objection.models.task.query(trx).deleteById(taskId);
+          const deletedLabelTask = await app.objection.models.labelTask.query(trx).delete().where('task_id', task.id);
 
-        if (deletedTask !== 1) {
-          throw Error;
-        }
+          await trx.commit();
+        })
+
+        
 
         req.flash('info', i18next.t('flash.tasks.delete.success'));
         reply.redirect(app.reverse('tasks'));

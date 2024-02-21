@@ -40,4 +40,22 @@ export const prepareData = async (app) => {
   await knex('users').insert(getFixtureData('users.json'));
   await knex('statuses').insert(getFixtureData('statuses.json'));
   await knex('labels').insert(getFixtureData('labels.json'));
+  await knex('tasks').insert(getFixtureData('tasks.json'));
+  await knex('labels_tasks').insert(getFixtureData('labels_tasks.json'));
 };
+
+export const stringifyValues = (obj) => {
+  const object = JSON.parse(JSON.stringify(obj))
+
+  function isNumber(value) {
+    return typeof value === 'number';
+  }
+
+  Object.entries(object).forEach(([key, value]) => {
+    if (isNumber(value)) {
+      object[key] = String(value);
+    }
+  })
+
+  return object;
+}

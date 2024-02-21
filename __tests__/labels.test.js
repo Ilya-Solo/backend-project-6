@@ -4,7 +4,7 @@ import _ from 'lodash';
 import fastify from 'fastify';
 
 import init from '../server/plugin.js';
-import { getTestData, prepareData, getUserCookie } from './helpers/index.js';
+import { getTestData, prepareData, getUserCookie, stringifyValues } from './helpers/index.js';
 
 describe('test labels CRUD', () => {
   let app;
@@ -151,6 +151,37 @@ describe('test labels CRUD', () => {
     
 
     expect(deletedLabel).toMatchObject(label);
+  });
+
+  it('delete while presented in task', async () => {
+    const params = testData.labels.edit;
+
+    const label = await models.label.query().findOne({ name: params.name });
+    
+    const task = testData.taskToCheckEntitiesDelete;
+    task["labels"] = [label.id]
+
+    const responseTaskCreate = await app.inject({
+      method: 'POST',
+      url: app.reverse('tasks'),
+      payload: {
+        data: stringifyValues(task),
+      },
+      cookies,
+    });
+
+    const response = await app.inject({
+      method: 'DELETE',
+      url: `${app.reverse('labels')}/${label.id}`,
+      cookies,
+    });
+
+    const deletedLabel = await models.label.query().findById(label.id);
+
+    expect(response.statusCode).toBe(302);
+    
+
+    expect(deletedLabel).toBeFalsy();
   });
 
   it('delete', async () => {
