@@ -25,6 +25,7 @@ import getHelpers from './helpers/index.js';
 import * as knexConfig from '../knexfile.js';
 import models from './models/index.js';
 import FormStrategy from './lib/passportStrategies/FormStrategy.js';
+import Rollbar from 'rollbar'
 
 const __dirname = fileURLToPath(path.dirname(import.meta.url));
 
@@ -78,6 +79,19 @@ const addHooks = (app) => {
     };
   });
 };
+const addRollbarErrorsHandling = (app) => {
+  const rollbar = new Rollbar({
+    accessToken: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
+    captureUncaught: true,
+    captureUnhandledRejections: true,
+  })
+
+  app.addHook('onError', (request, reply, error, done) => {
+    rollbar.error(error);
+    done();
+  });
+}
+
 
 const registerPlugins = async (app) => {
   await app.register(fastifySensible);
@@ -128,6 +142,7 @@ export default async (app, _options) => {
   setUpStaticAssets(app);
   addRoutes(app);
   addHooks(app);
+  addRollbarErrorsHandling(app);
 
   return app;
 };
