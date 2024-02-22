@@ -170,6 +170,8 @@ describe('test labels CRUD', () => {
       cookies,
     });
 
+    // const aaa = await models.task.query().findOne({ name: task.name });
+    
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('labels')}/${label.id}`,
@@ -179,9 +181,15 @@ describe('test labels CRUD', () => {
     const deletedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
-    
 
-    expect(deletedLabel).toBeFalsy();
+    expect(deletedLabel).toMatchObject(label);
+
+    const taskToDelete = await models.task.query().findOne({ name: task.name }); 
+    const responseDeleteTask = await app.inject({
+      method: 'DELETE',
+      url: `${app.reverse('tasks')}/${taskToDelete.id}`,
+      cookies,
+    });
   });
 
   it('delete', async () => {

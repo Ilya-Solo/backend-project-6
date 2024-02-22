@@ -62,11 +62,15 @@ export default (app) => {
       try {
         const labelId = req.params.id;
         try {
-          await app.objection.models.task.query()
-            .where('tasks.labelId', '=', labelId);
+          const labels = await app.objection.models.labelTask.query()
+            .where('labelId', labelId);
+
+          if (labels.length === 0) {
+            throw Error;
+          }
         } catch {
           const deletedLabel = await app.objection.models.label.query().deleteById(labelId);
-
+          console.log(deletedLabel)
           if (deletedLabel !== 1) {
             throw Error;
           }

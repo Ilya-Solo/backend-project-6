@@ -116,7 +116,6 @@ describe('test users CRUD', () => {
   });
 
   it('delete while presented in task', async () => {
-    const taskCookies = await getUserCookie(app, testData.users.new);
     const params = testData.users.edit;
 
     const responseSignIn = await app.inject({
@@ -141,11 +140,8 @@ describe('test users CRUD', () => {
       payload: {
         data: stringifyValues(taskObj),
       },
-      cookies: taskCookies,
+      cookies: cookie,
     });
-
-    const aaa = await models.task.query();
-    console.log(taskCookies)
     
     const response = await app.inject({
       method: 'DELETE',
@@ -158,13 +154,13 @@ describe('test users CRUD', () => {
     expect(response.statusCode).toBe(302);
     
 
-    expect(deletedUser).toBeFalsy();
+    expect(deletedUser).toMatchObject(user);
 
     const task = await models.task.query().findOne({ name: taskObj.name }); 
     const responseDeleteTask = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('tasks')}/${task.id}`,
-      cookies: taskCookies,
+      cookies: cookie,
     });
   });
 
