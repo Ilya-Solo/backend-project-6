@@ -1,7 +1,7 @@
 // @ts-check
 
 import i18next from 'i18next';
-import { isAuthoriedUser } from '../helpers/index.js'
+import { isAuthoriedUser } from '../helpers/index.js';
 
 export default (app) => {
   app
@@ -29,7 +29,7 @@ export default (app) => {
         } else {
           reply.render('users/edit', { user });
         }
-      } catch ({data}) {
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
         reply.redirect(app.reverse('users'));
       }
@@ -44,7 +44,7 @@ export default (app) => {
         await app.objection.models.user.query().insert(validUser);
         req.flash('info', i18next.t('flash.users.create.success'));
         reply.redirect(app.reverse('root'));
-      } catch ({data}) {
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.users.create.error'));
         reply.render('users/new', { user, errors: data });
       }
@@ -54,34 +54,8 @@ export default (app) => {
     .patch('/users/:id', async (req, reply) => {
       const userId = req.params.id;
       try {
-          const user = await app.objection.models.user.query().findById(userId);
-          const sessionUserData = req.user;
-          if (!req.isAuthenticated()) {
-            req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
-            reply.redirect(app.reverse('users'));
-          } else if (!isAuthoriedUser(sessionUserData, user.id)) {
-            req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
-            reply.redirect(app.reverse('users'));
-          } else {
-            await app.objection.models.user.fromJson(req.body.data);
-            user.$set(req.body.data);
-            await user.$query().patch();
-            req.flash('info', i18next.t('flash.users.edit.success'));
-            reply.redirect(app.reverse('users'));
-          }
-      } catch ({data}) {
-        req.flash('error', i18next.t('flash.users.edit.error.edit'));
-        reply.render('users/edit', { user: { ...req.body.data, id: userId}, errors: data });
-      }
-
-      return reply;
-    })
-    .delete('/users/:id', async (req, reply) => {
-      try {
-        const userId = req.params.id;
         const user = await app.objection.models.user.query().findById(userId);
         const sessionUserData = req.user;
-        
         if (!req.isAuthenticated()) {
           req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
           reply.redirect(app.reverse('users'));
@@ -89,11 +63,36 @@ export default (app) => {
           req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
           reply.redirect(app.reverse('users'));
         } else {
-          
+          await app.objection.models.user.fromJson(req.body.data);
+          user.$set(req.body.data);
+          await user.$query().patch();
+          req.flash('info', i18next.t('flash.users.edit.success'));
+          reply.redirect(app.reverse('users'));
+        }
+      } catch ({ data }) {
+        req.flash('error', i18next.t('flash.users.edit.error.edit'));
+        reply.render('users/edit', { user: { ...req.body.data, id: userId }, errors: data });
+      }
+
+      return reply;
+    })
+    .delete('/users/:id', async (req, reply) => { // eslint-disable-line consistent-return
+      try {
+        const userId = req.params.id;
+        const user = await app.objection.models.user.query().findById(userId);
+        const sessionUserData = req.user;
+
+        if (!req.isAuthenticated()) {
+          req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
+          reply.redirect(app.reverse('users'));
+        } else if (!isAuthoriedUser(sessionUserData, user.id)) {
+          req.flash('error', i18next.t('flash.users.edit.error.wrongAuth'));
+          reply.redirect(app.reverse('users'));
+        } else {
           try {
             const tasks = await app.objection.models.task.query()
               .where('tasks.executorId', '=', userId)
-              .orWhere('tasks.creatorId','=', userId);
+              .orWhere('tasks.creatorId', '=', userId);
             if (tasks.length === 0) {
               throw Error;
             }
@@ -103,7 +102,7 @@ export default (app) => {
             if (deletedUser !== 1) {
               throw Error;
             }
-            
+
             req.logOut();
             req.flash('info', i18next.t('flash.users.delete.success'));
             reply.redirect(app.reverse('users'));
@@ -112,7 +111,7 @@ export default (app) => {
           throw Error('User can\'t be deleted');
         }
       } catch (error) {
-        if (error.message = 'User can\'t be deleted') {
+        if (error.message === 'User can\'t be deleted') {
           req.flash('error', i18next.t('flash.users.delete.error.default'));
         } else {
           req.flash('error', i18next.t('flash.users.delete.error.auth'));
@@ -120,5 +119,5 @@ export default (app) => {
         reply.redirect(app.reverse('users'));
         return reply;
       }
-    })
+    });
 };

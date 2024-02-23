@@ -45,7 +45,7 @@
     "fastify-method-override": "^1.5.9",
     "fastify-objectionjs": "^2.0.1",
     "fastify-reverse-routes": "^3.0.0",
-    "heroku": "^0.2.0",
+    "heroku": "^8.10.0",
     "i18next": "^21.9.1",
     "jquery": "^3.6.0",
     "knex": "^2.4.0",

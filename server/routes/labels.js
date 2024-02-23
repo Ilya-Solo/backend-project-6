@@ -1,11 +1,11 @@
 // @ts-check
 
 import i18next from 'i18next';
-import { redirectRootIfNotuthenticated } from '../helpers/index.js'
+import { redirectRootIfNotuthenticated } from '../helpers/index.js';
 
 export default (app) => {
   app
-    .get('/labels', {name: 'labels', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
+    .get('/labels', { name: 'labels', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       const labels = await app.objection.models.label.query();
       reply.render('labels/index', { labels });
       return reply;
@@ -20,7 +20,7 @@ export default (app) => {
       try {
         const label = await app.objection.models.label.query().findById(labelId);
         reply.render('labels/edit', { label });
-      } catch ({data}) {
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.labels.edit.error'));
         reply.redirect(app.reverse('labels'));
       }
@@ -35,25 +35,25 @@ export default (app) => {
         await app.objection.models.label.query().insert(validLabel);
         req.flash('info', i18next.t('flash.labels.create.success'));
         reply.redirect(app.reverse('labels'));
-      } catch ({data}) {
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.labels.create.error'));
         reply.render('labels/new', { label, errors: data });
       }
 
       return reply;
     })
-    .patch('/labels/:id', { preHandler: redirectRootIfNotuthenticated(app) },  async (req, reply) => {
+    .patch('/labels/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       const labelId = req.params.id;
       try {
-          const label = await app.objection.models.label.query().findById(labelId);
-          await app.objection.models.label.fromJson(req.body.data);
-          label.$set(req.body.data);
-          await label.$query().patch();
-          req.flash('info', i18next.t('flash.labels.edit.success'));
-          reply.redirect(app.reverse('labels'));
-      } catch ({data}) {
+        const label = await app.objection.models.label.query().findById(labelId);
+        await app.objection.models.label.fromJson(req.body.data);
+        label.$set(req.body.data);
+        await label.$query().patch();
+        req.flash('info', i18next.t('flash.labels.edit.success'));
+        reply.redirect(app.reverse('labels'));
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.labels.edit.error'));
-        reply.render('labels/edit', { label: { ...req.body.data, id: labelId}, errors: data });
+        reply.render('labels/edit', { label: { ...req.body.data, id: labelId }, errors: data });
       }
 
       return reply;
@@ -70,7 +70,7 @@ export default (app) => {
           }
         } catch {
           const deletedLabel = await app.objection.models.label.query().deleteById(labelId);
-          console.log(deletedLabel)
+          console.log(deletedLabel);
           if (deletedLabel !== 1) {
             throw Error;
           }
@@ -81,10 +81,10 @@ export default (app) => {
         }
 
         throw Error;
-      } catch ({data}) {
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.labels.delete.error'));
         reply.redirect(app.reverse('labels'));
         return reply;
       }
-    })
+    });
 };

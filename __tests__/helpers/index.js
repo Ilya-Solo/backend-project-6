@@ -29,7 +29,7 @@ export const getUserCookie = async (app, user) => {
   const [sessionCookie] = responseSignIn.cookies;
   const { name, value } = sessionCookie;
   return { [name]: value };
-}
+};
 
 export const getTestData = () => getFixtureData('testData.json');
 
@@ -45,7 +45,7 @@ export const prepareData = async (app) => {
 };
 
 export const stringifyValues = (obj) => {
-  const object = JSON.parse(JSON.stringify(obj))
+  const object = JSON.parse(JSON.stringify(obj));
 
   function isNumber(value) {
     return typeof value === 'number';
@@ -55,7 +55,7 @@ export const stringifyValues = (obj) => {
     if (isNumber(value)) {
       object[key] = String(value);
     }
-  })
+  });
 
   return object;
-}
+};

@@ -31,14 +31,13 @@ export default (app) => ({
   },
 });
 
-export const redirectRootIfNotuthenticated = (app) => (req, reply, next)=> {
+export const redirectRootIfNotuthenticated = (app) => (req, reply, next) => {
   if (!req.isAuthenticated()) {
     req.flash('error', i18next.t('flash.users.edit.error.noAuth'));
     return reply.redirect(app.reverse('root'));
   }
-  next();
-}
 
-export const isAuthoriedUser = (sessionUser, requiredUserId) => {
-  return (sessionUser.id === requiredUserId);
-}
+  next();
+}; /* eslint consistent-return: "off" */
+
+export const isAuthoriedUser = (sessionUser, requiredUserId) => (sessionUser.id === requiredUserId);

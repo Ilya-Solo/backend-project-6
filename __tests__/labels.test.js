@@ -1,10 +1,11 @@
 // @ts-check
 
-import _ from 'lodash';
 import fastify from 'fastify';
 
 import init from '../server/plugin.js';
-import { getTestData, prepareData, getUserCookie, stringifyValues } from './helpers/index.js';
+import {
+  getTestData, prepareData, getUserCookie, stringifyValues,
+} from './helpers/index.js';
 
 describe('test labels CRUD', () => {
   let app;
@@ -66,7 +67,6 @@ describe('test labels CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
     const label = await models.label.query().findOne({ name: params.name });
 
     expect(label).toBeFalsy();
@@ -84,17 +84,15 @@ describe('test labels CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
+    const expected = { ...params };
     const label = await models.label.query().findOne({ name: params.name });
 
     expect(label).toMatchObject(expected);
   });
 
   it('no login patch', async () => {
-    const params = testData.labels.edit;
-
     const label = await models.label.query().findOne({ name: testData.labels.new.name });
-    
+
     const response = await app.inject({
       method: 'PATCH',
       url: `${app.reverse('labels')}/${label.id}`,
@@ -106,8 +104,7 @@ describe('test labels CRUD', () => {
     const edittedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
-    const expected = {...testData.labels.new};
-    
+    const expected = { ...testData.labels.new };
 
     expect(edittedLabel).toMatchObject(expected);
   });
@@ -116,7 +113,7 @@ describe('test labels CRUD', () => {
     const params = testData.labels.edit;
 
     const label = await models.label.query().findOne({ name: testData.labels.new.name });
-    
+
     const response = await app.inject({
       method: 'PATCH',
       url: `${app.reverse('labels')}/${label.id}`,
@@ -129,17 +126,14 @@ describe('test labels CRUD', () => {
     const edittedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
-    
+    const expected = { ...params };
 
     expect(edittedLabel).toMatchObject(expected);
   });
 
   it('no login delete', async () => {
-    const params = testData.labels.edit;
-
     const label = await models.label.query().findOne({ name: testData.labels.edit.name });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('labels')}/${label.id}`,
@@ -148,7 +142,6 @@ describe('test labels CRUD', () => {
     const deletedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedLabel).toMatchObject(label);
   });
@@ -157,11 +150,11 @@ describe('test labels CRUD', () => {
     const params = testData.labels.edit;
 
     const label = await models.label.query().findOne({ name: params.name });
-    
-    const task = testData.taskToCheckEntitiesDelete;
-    task["labels"] = [label.id]
 
-    const responseTaskCreate = await app.inject({
+    const task = testData.taskToCheckEntitiesDelete;
+    task.labels = [label.id];
+
+    await app.inject({
       method: 'POST',
       url: app.reverse('tasks'),
       payload: {
@@ -171,7 +164,7 @@ describe('test labels CRUD', () => {
     });
 
     // const aaa = await models.task.query().findOne({ name: task.name });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('labels')}/${label.id}`,
@@ -184,8 +177,8 @@ describe('test labels CRUD', () => {
 
     expect(deletedLabel).toMatchObject(label);
 
-    const taskToDelete = await models.task.query().findOne({ name: task.name }); 
-    const responseDeleteTask = await app.inject({
+    const taskToDelete = await models.task.query().findOne({ name: task.name });
+    await app.inject({
       method: 'DELETE',
       url: `${app.reverse('tasks')}/${taskToDelete.id}`,
       cookies,
@@ -193,10 +186,8 @@ describe('test labels CRUD', () => {
   });
 
   it('delete', async () => {
-    const params = testData.labels.edit;
-
     const label = await models.label.query().findOne({ name: testData.labels.edit.name });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('labels')}/${label.id}`,
@@ -206,7 +197,6 @@ describe('test labels CRUD', () => {
     const deletedLabel = await models.label.query().findById(label.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedLabel).toBeFalsy();
   });

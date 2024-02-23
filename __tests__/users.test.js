@@ -5,7 +5,9 @@ import fastify from 'fastify';
 
 import init from '../server/plugin.js';
 import encrypt from '../server/lib/secure.cjs';
-import { getTestData, prepareData, getUserCookie, stringifyValues } from './helpers/index.js';
+import {
+  getTestData, prepareData, stringifyValues,
+} from './helpers/index.js';
 
 describe('test users CRUD', () => {
   let app;
@@ -87,7 +89,7 @@ describe('test users CRUD', () => {
     const cookie = { [name]: value };
 
     const user = await models.user.query().findOne({ email: testData.users.new.email });
-    
+
     const response = await app.inject({
       method: 'PATCH',
       url: `${app.reverse('users')}/${user.id}`,
@@ -104,11 +106,10 @@ describe('test users CRUD', () => {
       ..._.omit(params, 'password'),
       passwordDigest: encrypt(params.password),
     };
-    
 
     expect(edittedUser).toMatchObject(expected);
 
-    const responseSignOut = await app.inject({
+    await app.inject({
       method: 'DELETE',
       url: app.reverse('session'),
       cookies: cookie,
@@ -116,8 +117,6 @@ describe('test users CRUD', () => {
   });
 
   it('delete while presented in task', async () => {
-    const params = testData.users.edit;
-
     const responseSignIn = await app.inject({
       method: 'POST',
       url: app.reverse('session'),
@@ -133,8 +132,8 @@ describe('test users CRUD', () => {
     const user = await models.user.query().findOne({ email: testData.users.edit.email });
 
     const taskObj = testData.taskToCheckEntitiesDelete;
-    taskObj["executorId"] = user.id
-    const responseTaskCreate = await app.inject({
+    taskObj.executorId = user.id;
+    await app.inject({
       method: 'POST',
       url: app.reverse('tasks'),
       payload: {
@@ -142,7 +141,7 @@ describe('test users CRUD', () => {
       },
       cookies: cookie,
     });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('users')}/${user.id}`,
@@ -152,12 +151,11 @@ describe('test users CRUD', () => {
     const deletedUser = await models.user.query().findById(user.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedUser).toMatchObject(user);
 
-    const task = await models.task.query().findOne({ name: taskObj.name }); 
-    const responseDeleteTask = await app.inject({
+    const task = await models.task.query().findOne({ name: taskObj.name });
+    await app.inject({
       method: 'DELETE',
       url: `${app.reverse('tasks')}/${task.id}`,
       cookies: cookie,
@@ -165,8 +163,6 @@ describe('test users CRUD', () => {
   });
 
   it('delete', async () => {
-    const params = testData.users.edit;
-
     const responseSignIn = await app.inject({
       method: 'POST',
       url: app.reverse('session'),
@@ -180,7 +176,7 @@ describe('test users CRUD', () => {
     const cookie = { [name]: value };
 
     const user = await models.user.query().findOne({ email: testData.users.edit.email });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('users')}/${user.id}`,
@@ -190,7 +186,6 @@ describe('test users CRUD', () => {
     const deletedUser = await models.user.query().findById(user.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedUser).toBeFalsy();
   });

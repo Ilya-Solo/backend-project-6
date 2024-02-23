@@ -1,11 +1,11 @@
 // @ts-check
 
 import i18next from 'i18next';
-import { redirectRootIfNotuthenticated } from '../helpers/index.js'
+import { redirectRootIfNotuthenticated } from '../helpers/index.js';
 
 export default (app) => {
   app
-    .get('/statuses', {name: 'statuses', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
+    .get('/statuses', { name: 'statuses', preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       const statuses = await app.objection.models.status.query();
       reply.render('statuses/index', { statuses });
       return reply;
@@ -20,7 +20,7 @@ export default (app) => {
       try {
         const status = await app.objection.models.status.query().findById(statusId);
         reply.render('statuses/edit', { status });
-      } catch ({data}) {
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.statuses.edit.error'));
         reply.redirect(app.reverse('statuses'));
       }
@@ -35,25 +35,25 @@ export default (app) => {
         await app.objection.models.status.query().insert(validStatus);
         req.flash('info', i18next.t('flash.statuses.create.success'));
         reply.redirect(app.reverse('statuses'));
-      } catch ({data}) {
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.statuses.create.error'));
         reply.render('statuses/new', { status, errors: data });
       }
 
       return reply;
     })
-    .patch('/statuses/:id', { preHandler: redirectRootIfNotuthenticated(app) },  async (req, reply) => {
+    .patch('/statuses/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       const statusId = req.params.id;
       try {
-          const status = await app.objection.models.status.query().findById(statusId);
-          await app.objection.models.status.fromJson(req.body.data);
-          status.$set(req.body.data);
-          await status.$query().patch();
-          req.flash('info', i18next.t('flash.statuses.edit.success'));
-          reply.redirect(app.reverse('statuses'));
-      } catch ({data}) {
+        const status = await app.objection.models.status.query().findById(statusId);
+        await app.objection.models.status.fromJson(req.body.data);
+        status.$set(req.body.data);
+        await status.$query().patch();
+        req.flash('info', i18next.t('flash.statuses.edit.success'));
+        reply.redirect(app.reverse('statuses'));
+      } catch ({ data }) {
         req.flash('error', i18next.t('flash.statuses.edit.error'));
-        reply.render('statuses/edit', { status: { ...req.body.data, id: statusId}, errors: data });
+        reply.render('statuses/edit', { status: { ...req.body.data, id: statusId }, errors: data });
       }
 
       return reply;
@@ -82,5 +82,5 @@ export default (app) => {
         reply.redirect(app.reverse('statuses'));
         return reply;
       }
-    })
+    });
 };

@@ -1,10 +1,11 @@
 // @ts-check
 
-import _ from 'lodash';
 import fastify from 'fastify';
 
 import init from '../server/plugin.js';
-import { getTestData, prepareData, getUserCookie, stringifyValues } from './helpers/index.js';
+import {
+  getTestData, prepareData, getUserCookie, stringifyValues,
+} from './helpers/index.js';
 
 describe('test tasks CRUD', () => {
   let app;
@@ -67,11 +68,11 @@ describe('test tasks CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
-    const task = await models.task.query().findOne({ name: params.name })
+    const expected = { ...params };
+    const task = await models.task.query().findOne({ name: params.name });
     const labelTasks = await models.labelTask.query().where('task_id', task.id);
-    const labelIds = labelTasks.map(labelTask => labelTask.labelId);
-    task["labels"] = labelIds
+    const labelIds = labelTasks.map((labelTask) => labelTask.labelId);
+    task.labels = labelIds;
 
     expect(task).toMatchObject(expected);
   });
@@ -88,11 +89,11 @@ describe('test tasks CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
-    const task = await models.task.query().findOne({ name: params.name })
+    const expected = { ...params };
+    const task = await models.task.query().findOne({ name: params.name });
     const labelTasks = await models.labelTask.query().where('task_id', task.id);
-    const labelIds = labelTasks.map(labelTask => labelTask.labelId);
-    task["labels"] = labelIds
+    const labelIds = labelTasks.map((labelTask) => labelTask.labelId);
+    task.labels = labelIds;
 
     expect(task).toMatchObject(expected);
   });
@@ -100,7 +101,7 @@ describe('test tasks CRUD', () => {
   it('patch', async () => {
     const params = testData.tasks.editFilledTask;
     const task = await models.task.query().findOne({ name: testData.tasks.newFilledTask.name });
-    
+
     const response = await app.inject({
       method: 'PATCH',
       url: `${app.reverse('tasks')}/${task.id}`,
@@ -111,18 +112,16 @@ describe('test tasks CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
-    const edittedTask = await models.task.query().findOne({ name: params.name })
+    const expected = { ...params };
+    const edittedTask = await models.task.query().findOne({ name: params.name });
     const labelTasks = await models.labelTask.query().where('task_id', task.id);
-    const labelIds = labelTasks.map(labelTask => labelTask.labelId);
-    edittedTask["labels"] = labelIds
+    const labelIds = labelTasks.map((labelTask) => labelTask.labelId);
+    edittedTask.labels = labelIds;
 
     expect(edittedTask).toMatchObject(expected);
   });
 
   it('delete with wrong auth', async () => {
-    const params = testData.tasks.editFilledTask;
-
     const task = await models.task.query().findOne({ name: testData.tasks.editFilledTask.name });
     const wrongCookies = await getUserCookie(app, testData.users.edit);
     const response = await app.inject({
@@ -135,17 +134,14 @@ describe('test tasks CRUD', () => {
     const labelTasks = await models.labelTask.query().where('task_id', task.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedTask).toBeTruthy();
     expect(labelTasks.length).toBeGreaterThan(0);
   });
 
   it('delete', async () => {
-    const params = testData.tasks.editFilledTask;
-
     const task = await models.task.query().findOne({ name: testData.tasks.editFilledTask.name });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('tasks')}/${task.id}`,
@@ -156,7 +152,6 @@ describe('test tasks CRUD', () => {
     const labelTasks = await models.labelTask.query().where('task_id', task.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedTask).toBeFalsy();
     expect(labelTasks).toHaveLength(0);

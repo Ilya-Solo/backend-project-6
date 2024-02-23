@@ -17,6 +17,7 @@ import qs from 'qs';
 import Pug from 'pug';
 import i18next from 'i18next';
 
+import Rollbar from 'rollbar';
 import ru from './locales/ru.js';
 import en from './locales/en.js';
 // @ts-ignore
@@ -25,7 +26,6 @@ import getHelpers from './helpers/index.js';
 import * as knexConfig from '../knexfile.js';
 import models from './models/index.js';
 import FormStrategy from './lib/passportStrategies/FormStrategy.js';
-import Rollbar from 'rollbar'
 
 const __dirname = fileURLToPath(path.dirname(import.meta.url));
 
@@ -84,14 +84,13 @@ const addRollbarErrorsHandling = (app) => {
     accessToken: process.env.POST_SERVER_ITEM_ACCESS_TOKEN,
     captureUncaught: true,
     captureUnhandledRejections: true,
-  })
+  });
 
   app.addHook('onError', (request, reply, error, done) => {
     rollbar.error(error);
     done();
   });
-}
-
+};
 
 const registerPlugins = async (app) => {
   await app.register(fastifySensible);

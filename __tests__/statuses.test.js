@@ -1,10 +1,11 @@
 // @ts-check
 
-import _ from 'lodash';
 import fastify from 'fastify';
 
 import init from '../server/plugin.js';
-import { getTestData, prepareData, getUserCookie, stringifyValues } from './helpers/index.js';
+import {
+  getTestData, prepareData, getUserCookie, stringifyValues,
+} from './helpers/index.js';
 
 describe('test statuses CRUD', () => {
   let app;
@@ -66,7 +67,7 @@ describe('test statuses CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
+
     const status = await models.status.query().findOne({ name: params.name });
 
     expect(status).toBeFalsy();
@@ -84,17 +85,15 @@ describe('test statuses CRUD', () => {
     });
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
+    const expected = { ...params };
     const status = await models.status.query().findOne({ name: params.name });
 
     expect(status).toMatchObject(expected);
   });
 
   it('no login patch', async () => {
-    const params = testData.statuses.edit;
-
     const status = await models.status.query().findOne({ name: testData.statuses.new.name });
-    
+
     const response = await app.inject({
       method: 'PATCH',
       url: `${app.reverse('statuses')}/${status.id}`,
@@ -106,8 +105,7 @@ describe('test statuses CRUD', () => {
     const edittedStatus = await models.status.query().findById(status.id);
 
     expect(response.statusCode).toBe(302);
-    const expected = {...testData.statuses.new};
-    
+    const expected = { ...testData.statuses.new };
 
     expect(edittedStatus).toMatchObject(expected);
   });
@@ -116,7 +114,7 @@ describe('test statuses CRUD', () => {
     const params = testData.statuses.edit;
 
     const status = await models.status.query().findOne({ name: testData.statuses.new.name });
-    
+
     const response = await app.inject({
       method: 'PATCH',
       url: `${app.reverse('statuses')}/${status.id}`,
@@ -129,17 +127,14 @@ describe('test statuses CRUD', () => {
     const edittedStatus = await models.status.query().findById(status.id);
 
     expect(response.statusCode).toBe(302);
-    const expected = {...params};
-    
+    const expected = { ...params };
 
     expect(edittedStatus).toMatchObject(expected);
   });
 
   it('no login delete', async () => {
-    const params = testData.statuses.edit;
-
     const status = await models.status.query().findOne({ name: testData.statuses.edit.name });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('statuses')}/${status.id}`,
@@ -148,7 +143,6 @@ describe('test statuses CRUD', () => {
     const deletedStatus = await models.status.query().findById(status.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedStatus).toMatchObject(status);
   });
@@ -159,8 +153,8 @@ describe('test statuses CRUD', () => {
     const status = await models.status.query().findOne({ name: params.name });
 
     const taskObj = testData.taskToCheckEntitiesDelete;
-    taskObj["statusId"] = status.id
-    const responseTaskCreate = await app.inject({
+    taskObj.statusId = status.id;
+    await app.inject({
       method: 'POST',
       url: app.reverse('tasks'),
       payload: {
@@ -179,9 +173,9 @@ describe('test statuses CRUD', () => {
 
     expect(response.statusCode).toBe(302);
     expect(deletedStatus).toMatchObject(status);
-    
-    const task = await models.task.query().findOne({ name: taskObj.name }); 
-    const responseDeleteTask = await app.inject({
+
+    const task = await models.task.query().findOne({ name: taskObj.name });
+    await app.inject({
       method: 'DELETE',
       url: `${app.reverse('tasks')}/${task.id}`,
       cookies,
@@ -189,10 +183,8 @@ describe('test statuses CRUD', () => {
   });
 
   it('delete', async () => {
-    const params = testData.statuses.edit;
-
     const status = await models.status.query().findOne({ name: testData.statuses.edit.name });
-    
+
     const response = await app.inject({
       method: 'DELETE',
       url: `${app.reverse('statuses')}/${status.id}`,
@@ -202,7 +194,6 @@ describe('test statuses CRUD', () => {
     const deletedStatus = await models.status.query().findById(status.id);
 
     expect(response.statusCode).toBe(302);
-    
 
     expect(deletedStatus).toBeFalsy();
   });
