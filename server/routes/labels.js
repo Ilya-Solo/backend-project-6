@@ -70,7 +70,7 @@ export default (app) => {
           }
         } catch {
           const deletedLabel = await app.objection.models.label.query().deleteById(labelId);
-          console.log(deletedLabel);
+
           if (deletedLabel !== 1) {
             throw Error;
           }
