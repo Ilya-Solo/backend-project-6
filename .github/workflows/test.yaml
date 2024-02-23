@@ -16,7 +16,11 @@ jobs:
         node-version: '14'
 
     - name: Install dependencies
-      run: npm install
+      run: make deploy
 
     - name: Run tests
       run: make test
+      env: # Or as an environment variable
+        SESSION_KEY: ${{ secrets.SESSION_KEY }}
+        PORT: ${{ secrets.PORT }}
+        POST_SERVER_ITEM_ACCESS_TOKEN: ${{ secrets.POST_SERVER_ITEM_ACCESS_TOKEN }}
