@@ -18,6 +18,9 @@ jobs:
     - name: Install dependencies
       run: make deploy
 
+    - name: Fix dependencies
+      run: npm audit fix
+
     - name: Run tests
       run: make test
       env: # Or as an environment variable
