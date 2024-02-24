@@ -8,7 +8,7 @@
   },
   "scripts": {
     "prebuild": "rm -rf dist",
-    "test": "jest --verbose --maxWorkers=4",
+    "test": "jest --verbose --runInBand",
     "build": "webpack",
     "start": "fastify start server/plugin.js -l debug -P -o"
   },
