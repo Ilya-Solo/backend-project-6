@@ -75,7 +75,6 @@ export default (app) => {
           .select('label_id')
           .where('task_id', '=', taskId);
         task.labels = labelsTasks.map((labelTask) => labelTask.labelId);
-
         const users = await app.objection.models.user.query();
         const statuses = await app.objection.models.status.query();
         const labels = await app.objection.models.label.query();
@@ -158,6 +157,7 @@ export default (app) => {
             const validLabelTask = await app.objection.models.labelTask.fromJson(labelObject);
             return app.objection.models.labelTask.query(trx).insert(validLabelTask);
           }));
+
           await trx.commit();
         });
         req.flash('info', i18next.t('flash.tasks.edit.success'));

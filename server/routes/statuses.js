@@ -64,19 +64,14 @@ export default (app) => {
         const statuses = (await app.objection.models.task.query()
           .where('tasks.statusId', '=', statusId));
         const isStatusUsedInTask = statuses.length !== 0;
-        if (isStatusUsedInTask) {
-          throw Error('Used in task');
-        } else {
-          const deletedStatus = await app.objection.models.status.query().deleteById(statusId);
-
-          if (deletedStatus !== 1) {
-            throw Error();
-          }
-
+        if (!isStatusUsedInTask) {
+          await app.objection.models.status.query().deleteById(statusId);
           req.flash('info', i18next.t('flash.statuses.delete.success'));
           reply.redirect(app.reverse('statuses'));
           return reply;
         }
+
+        throw Error('Status is presented in task');
       } catch (error) {
         req.flash('error', i18next.t('flash.statuses.delete.error'));
         reply.redirect(app.reverse('statuses'));

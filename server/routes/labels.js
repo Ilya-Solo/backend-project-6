@@ -61,26 +61,18 @@ export default (app) => {
     .delete('/labels/:id', { preHandler: redirectRootIfNotuthenticated(app) }, async (req, reply) => {
       try {
         const labelId = req.params.id;
-        try {
-          const labels = await app.objection.models.labelTask.query()
-            .where('labelId', labelId);
+        const labelsTask = await app.objection.models.labelTask.query()
+          .where('labelId', labelId);
+        const isLabelUsedInTask = labelsTask.length !== 0;
 
-          if (labels.length === 0) {
-            throw Error;
-          }
-        } catch {
-          const deletedLabel = await app.objection.models.label.query().deleteById(labelId);
-
-          if (deletedLabel !== 1) {
-            throw Error;
-          }
-
+        if (!isLabelUsedInTask) {
+          await app.objection.models.label.query().deleteById(labelId);
           req.flash('info', i18next.t('flash.labels.delete.success'));
           reply.redirect(app.reverse('labels'));
           return reply;
         }
 
-        throw Error;
+        throw Error('Label is presented in task');
       } catch ({ data }) {
         req.flash('error', i18next.t('flash.labels.delete.error'));
         reply.redirect(app.reverse('labels'));
