@@ -91,7 +91,7 @@ export default (app) => {
       const taskId = req.params.id;
       try {
         const task = await app.objection.models.task.query().findById(taskId)
-          .withGraphJoined('[status, creator, executor, labels]')
+          .withGraphJoined('[status, creator, executor, labels]');
         reply.render('tasks/view', { task });
       } catch ({ data }) {
         req.flash('error', i18next.t('flash.tasks.edit.error'));
@@ -143,10 +143,8 @@ export default (app) => {
           const task = await app.objection.models.task.query(trx).findById(taskId);
           await app.objection.models.task.fromJson(taskData);
           task.$set(taskData);
-          
-          
+
           await task.$query(trx).patch();
-          const aaa = await app.objection.models.task.query(trx).findById(taskId);
           const labelObjects = labelsValues.map((label) => ({ taskId, labelId: label }));
           await app.objection.models.labelTask.query(trx)
             .delete()
