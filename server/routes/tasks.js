@@ -49,7 +49,7 @@ export default (app) => {
             builder.where('executor.id', '=', filterObject.executor);
           }
           if (filterObject.label) {
-            builder.where('labels.labelId', '=', filterObject.label);
+            builder.where('labels.id', '=', filterObject.label);
           }
           if (filterObject.isCreatorUser === 'on') {
             builder.where('creator.id', '=', req.user.id);
@@ -91,10 +91,7 @@ export default (app) => {
       const taskId = req.params.id;
       try {
         const task = await app.objection.models.task.query().findById(taskId)
-          .leftJoin('users as executor', 'tasks.executorId', 'executor.id')
-          .join('users as creator', 'tasks.creatorId', 'creator.id')
-          .join('statuses', 'tasks.statusId', 'statuses.id')
-          .select('tasks.*', 'statuses.name as statusName', 'executor.firstName as executorName', 'creator.firstName as creatorName');
+          .withGraphJoined('[status, creator, executor, labels]')
         reply.render('tasks/view', { task });
       } catch ({ data }) {
         req.flash('error', i18next.t('flash.tasks.edit.error'));
@@ -140,13 +137,16 @@ export default (app) => {
       const taskId = Number(req.params.id);
       const { labels, ...taskRequiredData } = req.body.data;
       const labelsValues = labels || [];
-      const taskData = { ...taskRequiredData, creatorId: req.user.id };
+      const taskData = { executorId: -1, ...taskRequiredData, creatorId: req.user.id };
       try {
         await Model.transaction(async (trx) => {
           const task = await app.objection.models.task.query(trx).findById(taskId);
           await app.objection.models.task.fromJson(taskData);
           task.$set(taskData);
+          
+          
           await task.$query(trx).patch();
+          const aaa = await app.objection.models.task.query(trx).findById(taskId);
           const labelObjects = labelsValues.map((label) => ({ taskId, labelId: label }));
           await app.objection.models.labelTask.query(trx)
             .delete()
