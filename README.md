@@ -5,7 +5,7 @@
 
 # Webservice Task Manager
 
-Welcome to the Webservice Task Manager! This tool helps you manage your tasks efficiently through a user-friendly web interface.
+Welcome to the Webservice Task Manager! This tool helps you manage your tasks efficiently through a user-friendly web interface
 
 ## Setup
 
